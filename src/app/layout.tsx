@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AppShell } from "@/components/AppShell";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -27,7 +28,7 @@ export default async function RootLayout({
 }>) {
   const cookieStore = await cookies();
   const themeCookie = cookieStore.get("theme");
-  const theme = (themeCookie?.value === "minimal" ? "minimal" : "warm") as "warm" | "minimal";
+  const theme = (themeCookie?.value === "dark" ? "dark" : "warm") as "warm" | "dark";
 
   return (
     <html
@@ -38,6 +39,7 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col">
         <ThemeProvider initial={theme}>
           <AppShell>{children}</AppShell>
+          <Toaster position="top-center" richColors />
         </ThemeProvider>
       </body>
     </html>

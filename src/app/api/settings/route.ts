@@ -1,7 +1,7 @@
 import { getSession } from "@/lib/auth";
 import { db } from "@/db";
-import { userSettings, users } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { userSettings, users, tasks, wishes } from "@/db/schema";
+import { eq, and, sql } from "drizzle-orm";
 import {
   getMyPoints,
   getMonthlyEarned,
@@ -28,7 +28,22 @@ export async function GET(request: Request) {
 
   if (searchParams.get("pending") === "true") {
     const count = getPendingCount(session.userId);
-    return Response.json({ count });
+    // Also get breakdown
+    const pendingTasks = db.select({ cnt: sql`COUNT(*)` }).from(tasks)
+      .where(and(eq(tasks.assigneeId, session.userId), eq(tasks.status, "pending"))).get();
+    const submittedTasks = db.select({ cnt: sql`COUNT(*)` }).from(tasks)
+      .where(and(eq(tasks.creatorId, session.userId), eq(tasks.status, "submitted"))).get();
+    const pendingWishes = db.select({ cnt: sql`COUNT(*)` }).from(wishes)
+      .where(and(eq(wishes.fulfillerId, session.userId), eq(wishes.status, "pending"))).get();
+    const submittedWishes = db.select({ cnt: sql`COUNT(*)` }).from(wishes)
+      .where(and(eq(wishes.creatorId, session.userId), eq(wishes.status, "submitted"))).get();
+    return Response.json({
+      count,
+      pendingTasks: pendingTasks?.cnt ?? 0,
+      submittedTasks: submittedTasks?.cnt ?? 0,
+      pendingWishes: pendingWishes?.cnt ?? 0,
+      submittedWishes: submittedWishes?.cnt ?? 0,
+    });
   }
 
   // Full settings (for the settings page)

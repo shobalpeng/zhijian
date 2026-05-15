@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { TopBar } from "@/components/TopBar";
 import { TaskCard } from "@/components/TaskCard";
+import { PullToRefresh } from "@/components/PullToRefresh";
 import {
   Select,
   SelectContent,
@@ -58,33 +59,31 @@ function TasksContent() {
     router.replace(`/tasks?${params.toString()}`, { scroll: false });
   }
 
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      try {
-        const [meRes, assignedRes, createdRes] = await Promise.all([
-          fetch("/api/auth/me"),
-          fetch("/api/tasks?type=assigned"),
-          fetch("/api/tasks?type=created"),
-        ]);
-        const me = await meRes.json();
-        setUserId(me.userId);
+  async function loadTasks() {
+    setLoading(true);
+    try {
+      const [meRes, assignedRes, createdRes] = await Promise.all([
+        fetch("/api/auth/me"),
+        fetch("/api/tasks?type=assigned"),
+        fetch("/api/tasks?type=created"),
+      ]);
+      const me = await meRes.json();
+      setUserId(me.userId);
 
-        const assigned = ((await assignedRes.json()).tasks ?? []) as Task[];
-        const created = ((await createdRes.json()).tasks ?? []) as Task[];
-        // Merge and deduplicate
-        const map = new Map<number, Task>();
-        assigned.forEach((t) => map.set(t.id, t));
-        created.forEach((t) => map.set(t.id, t));
-        setTasks(Array.from(map.values()));
-      } catch {
-        setTasks([]);
-      } finally {
-        setLoading(false);
-      }
+      const assigned = ((await assignedRes.json()).tasks ?? []) as Task[];
+      const created = ((await createdRes.json()).tasks ?? []) as Task[];
+      const map = new Map<number, Task>();
+      assigned.forEach((t) => map.set(t.id, t));
+      created.forEach((t) => map.set(t.id, t));
+      setTasks(Array.from(map.values()));
+    } catch {
+      setTasks([]);
+    } finally {
+      setLoading(false);
     }
-    load();
-  }, []);
+  }
+
+  useEffect(() => { loadTasks(); }, []);
 
   const filtered = useMemo(() => {
     return tasks.filter((t) => {
@@ -103,6 +102,7 @@ function TasksContent() {
     <>
       <TopBar title="任务" />
 
+      <PullToRefresh onRefresh={loadTasks}>
       {/* Filters */}
       <div className="flex gap-2 px-4 py-3">
         <Select value={role} onValueChange={(v) => v && setRole(v)}>
@@ -148,9 +148,11 @@ function TasksContent() {
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <p className="text-center text-sm text-muted-foreground py-12">
-            暂无任务
-          </p>
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <span className="text-5xl mb-4">🏃</span>
+            <p className="text-sm text-muted-foreground mb-1">还没有任务</p>
+            <p className="text-xs text-muted-foreground mb-4">发布第一个任务，开始攒积分吧</p>
+          </div>
         ) : (
           <div className="space-y-3">
             {filtered.map((task) => (
@@ -160,6 +162,8 @@ function TasksContent() {
                 title={task.title}
                 points={task.points}
                 status={task.status}
+                createdAt={(task as any).createdAt}
+                submittedAt={(task as any).submittedAt}
                 creatorLabel={
                   task.creatorId === userId
                     ? "发布者：我"
@@ -172,6 +176,7 @@ function TasksContent() {
           </div>
         )}
       </div>
+      </PullToRefresh>
     </>
   );
 }

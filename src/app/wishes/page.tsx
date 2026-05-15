@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { TopBar } from "@/components/TopBar";
 import { WishCard } from "@/components/WishCard";
+import { PullToRefresh } from "@/components/PullToRefresh";
 import {
   Select,
   SelectContent,
@@ -50,29 +51,28 @@ function WishesContent() {
   function setRole(v: string) { setRoleState(v); const p = new URLSearchParams(searchParams.toString()); p.set("role", v); router.replace(`/wishes?${p.toString()}`, { scroll: false }); }
   function setStatus(v: string) { setStatusState(v); const p = new URLSearchParams(searchParams.toString()); p.set("status", v); router.replace(`/wishes?${p.toString()}`, { scroll: false }); }
 
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      try {
-        const [meRes, wishesRes] = await Promise.all([
-          fetch("/api/auth/me"),
-          fetch("/api/wishes"),
-        ]);
-        const me = await meRes.json();
-        setUserId(me.userId);
-        if (!wishesRes.ok) throw new Error("Failed to fetch");
-        const data = await wishesRes.json();
-        setMyWishes(data.myWishes ?? []);
-        setPartnerWishes(data.partnerWishes ?? []);
-      } catch {
-        setMyWishes([]);
-        setPartnerWishes([]);
-      } finally {
-        setLoading(false);
-      }
+  async function loadWishes() {
+    setLoading(true);
+    try {
+      const [meRes, wishesRes] = await Promise.all([
+        fetch("/api/auth/me"),
+        fetch("/api/wishes"),
+      ]);
+      const me = await meRes.json();
+      setUserId(me.userId);
+      if (!wishesRes.ok) throw new Error("Failed to fetch");
+      const data = await wishesRes.json();
+      setMyWishes(data.myWishes ?? []);
+      setPartnerWishes(data.partnerWishes ?? []);
+    } catch {
+      setMyWishes([]);
+      setPartnerWishes([]);
+    } finally {
+      setLoading(false);
     }
-    load();
-  }, []);
+  }
+
+  useEffect(() => { loadWishes(); }, []);
 
   const filtered = useMemo(() => {
     const source = role === "all" ? [...myWishes, ...partnerWishes] : role === "mine" ? myWishes : partnerWishes;
@@ -83,6 +83,7 @@ function WishesContent() {
     <>
       <TopBar title="心愿" />
 
+      <PullToRefresh onRefresh={loadWishes}>
       {/* Filters */}
       <div className="flex gap-2 px-4 py-3">
         <Select value={role} onValueChange={(v) => v && setRole(v)}>
@@ -128,9 +129,11 @@ function WishesContent() {
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <p className="text-center text-sm text-muted-foreground py-12">
-            暂无数据
-          </p>
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <span className="text-5xl mb-4">💝</span>
+            <p className="text-sm text-muted-foreground mb-1">还没有心愿</p>
+            <p className="text-xs text-muted-foreground mb-4">发布一个心愿，让Ta来实现吧</p>
+          </div>
         ) : (
           <div className="space-y-3">
             {filtered.map((wish) => (
@@ -140,6 +143,8 @@ function WishesContent() {
                 title={wish.title}
                 points={wish.points}
                 status={wish.status}
+                createdAt={(wish as any).createdAt}
+                submittedAt={(wish as any).submittedAt}
                 creatorLabel={
                   wish.creatorId === userId
                     ? "发布者：我"
@@ -152,6 +157,7 @@ function WishesContent() {
           </div>
         )}
       </div>
+      </PullToRefresh>
     </>
   );
 }

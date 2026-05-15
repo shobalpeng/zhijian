@@ -7,6 +7,21 @@ interface WishCardProps {
   points: number;
   status: string;
   creatorLabel?: string;
+  createdAt?: string;
+  submittedAt?: string | null;
+}
+
+function relativeTime(iso?: string | null): string {
+  if (!iso) return "";
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "刚刚";
+  if (mins < 60) return `${mins}分钟前`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}小时前`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}天前`;
+  return new Date(iso).toLocaleDateString("zh-CN");
 }
 
 const statusConfig: Record<string, { label: string; className: string }> = {
@@ -27,7 +42,7 @@ const statusConfig: Record<string, { label: string; className: string }> = {
   },
 };
 
-export function WishCard({ id, title, points, status, creatorLabel }: WishCardProps) {
+export function WishCard({ id, title, points, status, creatorLabel, createdAt, submittedAt }: WishCardProps) {
   // Map old statuses for backward compatibility
   const mappedStatus = status === "unclaimed" ? "pending" : status === "frozen" || status === "implemented" ? "submitted" : status === "completed" ? "confirmed" : status;
   const config = statusConfig[mappedStatus] ?? statusConfig.pending;
@@ -41,7 +56,12 @@ export function WishCard({ id, title, points, status, creatorLabel }: WishCardPr
         <div className="flex-1 min-w-0">
           <h3 className="text-sm font-medium leading-snug truncate">{title}</h3>
           {creatorLabel && (
-            <p className="text-xs text-muted-foreground mt-1">{creatorLabel}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{creatorLabel}</p>
+          )}
+          {(createdAt || submittedAt) && (
+            <p className="text-xs text-muted-foreground/70 mt-0.5">
+              {relativeTime(submittedAt || createdAt)}
+            </p>
           )}
         </div>
         <div className="flex items-center gap-2 shrink-0">

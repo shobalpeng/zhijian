@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { TopBar } from "@/components/TopBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,9 +55,9 @@ export default function EditTaskPage() {
           imageUrl,
         }),
       });
-      if (!res.ok) { const err = await res.json(); alert(err.error ?? "保存失败"); setSubmitting(false); return; }
+      if (!res.ok) { const err = await res.json(); toast.error(err.error ?? "保存失败"); setSubmitting(false); return; }
       router.replace(`/tasks/${id}`);
-    } catch { alert("保存失败"); setSubmitting(false); }
+    } catch { toast.error("保存失败"); setSubmitting(false); }
   }
 
   if (loading) return <><TopBar title="编辑任务" showBell={false} /><div className="flex items-center justify-center flex-1 py-16"><p className="text-sm text-muted-foreground">加载中...</p></div></>;

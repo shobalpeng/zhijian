@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { TopBar } from "@/components/TopBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,14 +38,14 @@ export default function CreateTaskPage() {
 
       if (!res.ok) {
         const err = await res.json();
-        alert(err.error ?? "创建失败");
+        toast.error(err.error ?? "创建失败");
         setSubmitting(false);
         return;
       }
 
       router.replace("/tasks");
     } catch {
-      alert("创建失败");
+      toast.error("创建失败");
       setSubmitting(false);
     }
   }

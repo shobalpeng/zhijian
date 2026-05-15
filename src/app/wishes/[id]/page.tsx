@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { TopBar } from "@/components/TopBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,6 +67,7 @@ export default function WishDetailPage() {
   const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
   const [confirmText, setConfirmText] = useState("确认");
   const [confirmVariant, setConfirmVariant] = useState<"default" | "destructive">("default");
+  const [statusPulse, setStatusPulse] = useState(false);
 
   const fetchWish = useCallback(async () => {
     if (!id || isNaN(id)) { setError("无效的心愿 ID"); setLoading(false); return; }
@@ -110,25 +112,29 @@ export default function WishDetailPage() {
   async function handleSubmit() {
     try {
       const res = await fetch(`/api/wishes/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "submit" }) });
-      if (!res.ok) { const err = await res.json(); alert(err.error ?? "操作失败"); return; }
+      if (!res.ok) { const err = await res.json(); toast.error(err.error ?? "操作失败"); return; }
+      toast.success("已提交完成，等待对方确认");
+      setStatusPulse(true); setTimeout(() => setStatusPulse(false), 600);
       fetchWish();
-    } catch { alert("操作失败"); }
+    } catch { toast.error("操作失败"); }
   }
 
   async function handleConfirm() {
     try {
       const res = await fetch(`/api/wishes/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "confirm" }) });
-      if (!res.ok) { const err = await res.json(); alert(err.error ?? "操作失败"); return; }
+      if (!res.ok) { const err = await res.json(); toast.error(err.error ?? "操作失败"); return; }
+      toast.success("已确认完成");
+      setStatusPulse(true); setTimeout(() => setStatusPulse(false), 600);
       fetchWish();
-    } catch { alert("操作失败"); }
+    } catch { toast.error("操作失败"); }
   }
 
   async function handleDelete() {
     try {
       const res = await fetch(`/api/wishes/${id}`, { method: "DELETE" });
-      if (!res.ok) { const err = await res.json(); alert(err.error ?? "删除失败"); return; }
+      if (!res.ok) { const err = await res.json(); toast.error(err.error ?? "删除失败"); return; }
       router.replace("/wishes");
-    } catch { alert("删除失败"); }
+    } catch { toast.error("删除失败"); }
   }
 
   function promptDelete() { showConfirm("删除心愿", "确定要删除此心愿吗？", handleDelete, "删除", "destructive"); }
@@ -146,9 +152,9 @@ export default function WishDetailPage() {
     setSaving(true);
     try {
       const res = await fetch(`/api/wishes/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: editTitle.trim(), description: editDescription.trim() || null, points: Number(editPoints) }) });
-      if (!res.ok) { const err = await res.json(); alert(err.error ?? "保存失败"); setSaving(false); return; }
+      if (!res.ok) { const err = await res.json(); toast.error(err.error ?? "保存失败"); setSaving(false); return; }
       setEditing(false); fetchWish();
-    } catch { alert("保存失败"); }
+    } catch { toast.error("保存失败"); }
     finally { setSaving(false); }
   }
 
@@ -170,7 +176,7 @@ export default function WishDetailPage() {
 
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-sm font-bold text-primary tabular-nums">{wish.points} 分</span>
-          <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium", config.className)}>{config.label}</span>
+          <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium", config.className, statusPulse && "animate-status-pulse")}>{config.label}</span>
         </div>
 
         {editing ? (

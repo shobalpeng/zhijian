@@ -3,6 +3,7 @@ import { TopBar } from "@/components/TopBar";
 import { PointsOverview } from "@/components/PointsOverview";
 import { PendingCard } from "@/components/PendingCard";
 import { FeatureCards } from "@/components/FeatureCards";
+import { ActivityTimeline } from "@/components/ActivityTimeline";
 import { Card, CardContent } from "@/components/ui/card";
 import { ListTodo, Heart, ChevronRight } from "lucide-react";
 
@@ -12,6 +13,7 @@ export default function Home() {
       <TopBar title="织间" showBack={false} />
       <PointsOverview />
       <PendingCard />
+      <ActivityTimeline />
 
       <div className="mx-4 mt-4 grid grid-cols-2 gap-3">
         <Link href="/tasks">

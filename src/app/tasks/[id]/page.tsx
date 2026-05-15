@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { TopBar } from "@/components/TopBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,9 +73,8 @@ export default function TaskDetailPage() {
   const [confirmBody, setConfirmBody] = useState("");
   const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
   const [confirmText, setConfirmText] = useState("确认");
-  const [confirmVariant, setConfirmVariant] = useState<"default" | "destructive">(
-    "default"
-  );
+  const [confirmVariant, setConfirmVariant] = useState<"default" | "destructive">("default");
+  const [statusPulse, setStatusPulse] = useState(false);
 
   const fetchTask = useCallback(async () => {
     if (!id || isNaN(id)) {
@@ -156,12 +156,14 @@ export default function TaskDetailPage() {
       });
       if (!res.ok) {
         const err = await res.json();
-        alert(err.error ?? "操作失败");
+        toast.error(err.error ?? "操作失败");
         return;
       }
+      toast.success("已提交完成，等待对方确认");
+      setStatusPulse(true); setTimeout(() => setStatusPulse(false), 600);
       fetchTask();
     } catch {
-      alert("操作失败");
+      toast.error("操作失败");
     }
   }
 
@@ -174,12 +176,14 @@ export default function TaskDetailPage() {
       });
       if (!res.ok) {
         const err = await res.json();
-        alert(err.error ?? "操作失败");
+        toast.error(err.error ?? "操作失败");
         return;
       }
+      toast.success("确认完成，积分已发放");
+      setStatusPulse(true); setTimeout(() => setStatusPulse(false), 600);
       fetchTask();
     } catch {
-      alert("操作失败");
+      toast.error("操作失败");
     }
   }
 
@@ -191,12 +195,12 @@ export default function TaskDetailPage() {
       });
       if (!res.ok) {
         const err = await res.json();
-        alert(err.error ?? "删除失败");
+        toast.error(err.error ?? "删除失败");
         return;
       }
       router.replace("/tasks");
     } catch {
-      alert("删除失败");
+      toast.error("删除失败");
     }
   }
 
@@ -278,7 +282,8 @@ export default function TaskDetailPage() {
           <span
             className={cn(
               "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-              config.className
+              config.className,
+              statusPulse && "animate-status-pulse"
             )}
           >
             {config.label}

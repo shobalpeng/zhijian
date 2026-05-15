@@ -10,6 +10,7 @@ interface PointsData {
 export function PointsOverview() {
   const [data, setData] = useState<PointsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -22,14 +23,14 @@ export function PointsOverview() {
         if (!cancelled) {
           setData(d);
           setLoading(false);
+          // Trigger scale animation after data loads
+          setTimeout(() => setMounted(true), 50);
         }
       })
       .catch(() => {
         if (!cancelled) setLoading(false);
       });
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
   if (loading) {
@@ -40,20 +41,17 @@ export function PointsOverview() {
     );
   }
 
-  if (!data) {
-    return null;
-  }
+  if (!data) return null;
 
   const { myPoints, partnerPoints } = data;
 
   return (
     <div className="px-4 py-4">
       <div className="rounded-xl bg-card ring-1 ring-foreground/10 p-4">
-        {/* Points side by side */}
-        <div className="flex items-center justify-around mb-3">
+        <div className="flex items-center justify-around">
           <div className="flex flex-col items-center">
             <span className="text-sm text-muted-foreground">我</span>
-            <span className="text-3xl font-bold text-primary tabular-nums">
+            <span className={`text-3xl font-bold text-primary tabular-nums transition-all duration-500 ${mounted ? "scale-100" : "scale-90 opacity-0"}`}>
               {myPoints}
             </span>
             <span className="text-xs text-muted-foreground">积分</span>
@@ -61,13 +59,12 @@ export function PointsOverview() {
           <div className="h-10 w-px bg-border" />
           <div className="flex flex-col items-center">
             <span className="text-sm text-muted-foreground">Ta</span>
-            <span className="text-3xl font-bold text-secondary-foreground tabular-nums">
+            <span className={`text-3xl font-bold text-secondary-foreground tabular-nums transition-all duration-500 delay-150 ${mounted ? "scale-100" : "scale-90 opacity-0"}`}>
               {partnerPoints}
             </span>
             <span className="text-xs text-muted-foreground">积分</span>
           </div>
         </div>
-
       </div>
     </div>
   );

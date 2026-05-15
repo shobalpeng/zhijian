@@ -6,6 +6,7 @@ import Link from "next/link";
 import { TopBar } from "@/components/TopBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 import { useTheme } from "@/components/ThemeProvider";
 
 interface SettingsData {
@@ -59,14 +60,14 @@ export default function SettingsPage() {
         body: JSON.stringify({ monthlyPointCap: value }),
       });
       if (!res.ok) {
-        alert("保存失败");
+        toast.error("保存失败");
         setSavingCap(false);
         return;
       }
       setData((prev) => (prev ? { ...prev, monthlyPointCap: value } : prev));
       setEditingCap(false);
     } catch {
-      alert("保存失败");
+      toast.error("保存失败");
     } finally {
       setSavingCap(false);
     }
@@ -87,7 +88,7 @@ export default function SettingsPage() {
       await fetch("/api/auth/logout", { method: "POST" });
       router.push("/login");
     } catch {
-      alert("退出失败");
+      toast.error("退出失败");
     }
   }
 
@@ -179,14 +180,14 @@ export default function SettingsPage() {
                 温馨
               </button>
               <button
-                onClick={() => setTheme("minimal")}
+                onClick={() => setTheme("dark")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                  theme === "minimal"
+                  theme === "dark"
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted text-muted-foreground hover:bg-muted/70"
                 }`}
               >
-                极简
+                黑夜
               </button>
             </div>
           </div>
