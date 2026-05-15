@@ -6,8 +6,10 @@ import {
   userSettings,
   users,
   pointTransactions,
+  recipes,
+  cookHistory,
 } from "@/db/schema";
-import { eq, and, or, desc, sql, count } from "drizzle-orm";
+import { eq, and, or, desc, sql, count, like } from "drizzle-orm";
 
 // ─── Points ───────────────────────────────────────────────────────────
 
@@ -160,6 +162,91 @@ export function createNotification(data: {
     isRead: 0,
     createdAt: new Date().toISOString(),
   }).run();
+}
+
+// ─── Points Transactions ──────────────────────────────────────────────
+
+// ─── Recipes ──────────────────────────────────────────────────────────
+
+export function getRecipes(search?: string | null, sort?: string | null) {
+  let q = db.select().from(recipes).$dynamic();
+  if (search) {
+    q = q.where(like(recipes.title, `%${search}%`));
+  }
+  switch (sort) {
+    case "cookCount":
+      q = q.orderBy(desc(recipes.cookCount));
+      break;
+    case "lastCooked":
+      q = q.orderBy(desc(recipes.lastCookedAt));
+      break;
+    default:
+      q = q.orderBy(desc(recipes.createdAt));
+  }
+  return q.all();
+}
+
+export function getRecipeById(recipeId: number) {
+  return db.select().from(recipes).where(eq(recipes.id, recipeId)).get();
+}
+
+export function getCookHistoryForRecipe(recipeId: number) {
+  return db
+    .select({
+      id: cookHistory.id,
+      recipeId: cookHistory.recipeId,
+      userId: cookHistory.userId,
+      rating: cookHistory.rating,
+      createdAt: cookHistory.createdAt,
+      username: users.username,
+    })
+    .from(cookHistory)
+    .leftJoin(users, eq(cookHistory.userId, users.id))
+    .where(eq(cookHistory.recipeId, recipeId))
+    .orderBy(desc(cookHistory.createdAt))
+    .all();
+}
+
+export function addCookRecord(data: {
+  recipeId: number;
+  userId: number;
+  rating?: number | null;
+}) {
+  // Insert cook history
+  db.insert(cookHistory).values({
+    recipeId: data.recipeId,
+    userId: data.userId,
+    rating: data.rating ?? null,
+    createdAt: new Date().toISOString(),
+  }).run();
+
+  // Update recipe's cookCount, avgRating, lastCookedAt
+  const recipe = getRecipeById(data.recipeId);
+  if (!recipe) return;
+
+  const histories = db
+    .select()
+    .from(cookHistory)
+    .where(eq(cookHistory.recipeId, data.recipeId))
+    .all();
+
+  const newCount = histories.length;
+  const ratings = histories.filter((h) => h.rating != null).map((h) => h.rating!);
+  const newAvg = ratings.length > 0
+    ? Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length)
+    : null;
+
+  const latest = histories[0];
+
+  db.update(recipes)
+    .set({
+      cookCount: newCount,
+      avgRating: newAvg,
+      lastCookedAt: latest?.createdAt ?? null,
+      updatedAt: new Date().toISOString(),
+    })
+    .where(eq(recipes.id, data.recipeId))
+    .run();
 }
 
 // ─── Points Transactions ──────────────────────────────────────────────

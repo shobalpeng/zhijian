@@ -67,6 +67,28 @@ export const userSettings = sqliteTable("user_settings", {
   theme: text("theme").notNull().default("warm"), // warm | minimal
 });
 
+export const recipes = sqliteTable("recipes", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  title: text("title").notNull(),
+  imageUrl: text("image_url"),
+  ingredients: text("ingredients"),
+  steps: text("steps"),
+  cookCount: integer("cook_count").notNull().default(0),
+  avgRating: integer("avg_rating"),
+  lastCookedAt: text("last_cooked_at"),
+  creatorId: integer("creator_id").notNull().references(() => users.id),
+  createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
+  updatedAt: text("updated_at").notNull().$defaultFn(() => new Date().toISOString()),
+});
+
+export const cookHistory = sqliteTable("cook_history", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  recipeId: integer("recipe_id").notNull().references(() => recipes.id),
+  userId: integer("user_id").notNull().references(() => users.id),
+  rating: integer("rating"), // 1-5, nullable
+  createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
+});
+
 export const pointTransactions = sqliteTable("point_transactions", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   userId: integer("user_id").notNull().references(() => users.id),

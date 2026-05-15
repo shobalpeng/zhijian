@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Plus, User, PenLine, Heart } from "lucide-react";
+import { Home, Plus, User, PenLine, Heart, ChefHat } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -27,6 +27,11 @@ const createActions = [
     icon: Heart,
     href: "/wishes/create",
   },
+  {
+    label: "菜谱",
+    icon: ChefHat,
+    href: "/recipes/create",
+  },
 ];
 
 export function BottomNav() {
@@ -42,12 +47,15 @@ export function BottomNav() {
 
   const isInTasks = pathname.startsWith("/tasks");
   const isInWishes = pathname.startsWith("/wishes");
+  const isInRecipes = pathname.startsWith("/recipes");
 
   function handlePlusClick() {
     if (isInTasks) {
       router.push("/tasks/create");
     } else if (isInWishes) {
       router.push("/wishes/create");
+    } else if (isInRecipes) {
+      router.push("/recipes/create");
     } else {
       setOpen(true);
     }
@@ -70,7 +78,7 @@ export function BottomNav() {
                   onClick={handlePlusClick}
                   className={cn(
                     "flex flex-col items-center justify-center gap-0.5 w-full h-full transition-colors",
-                    (isInTasks || isInWishes)
+                    (isInTasks || isInWishes || isInRecipes)
                       ? "text-primary"
                       : "text-muted-foreground hover:text-foreground"
                   )}
