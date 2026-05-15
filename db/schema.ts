@@ -89,6 +89,18 @@ export const cookHistory = sqliteTable("cook_history", {
   createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
 });
 
+export const anniversaries = sqliteTable("anniversaries", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("user_id").notNull().references(() => users.id),
+  name: text("name").notNull(),
+  date: text("date").notNull(), // YYYY-MM-DD
+  note: text("note"),
+  isLunar: integer("is_lunar").notNull().default(0),
+  isTogether: integer("is_together").notNull().default(0),
+  createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
+  updatedAt: text("updated_at").notNull().$defaultFn(() => new Date().toISOString()),
+});
+
 export const pointTransactions = sqliteTable("point_transactions", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   userId: integer("user_id").notNull().references(() => users.id),

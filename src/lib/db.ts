@@ -8,8 +8,10 @@ import {
   pointTransactions,
   recipes,
   cookHistory,
+  anniversaries,
 } from "@/db/schema";
-import { eq, and, or, desc, sql, count, like } from "drizzle-orm";
+import { eq, and, or, desc, sql, count, like, gte } from "drizzle-orm";
+import { Lunar } from "lunar-javascript";
 
 // ─── Points ───────────────────────────────────────────────────────────
 
@@ -247,6 +249,114 @@ export function addCookRecord(data: {
     })
     .where(eq(recipes.id, data.recipeId))
     .run();
+}
+
+// ─── Anniversaries ─────────────────────────────────────────────────────
+
+function toSolarDate(anniversary: { date: string; isLunar: number }): Date {
+  const [y, m, d] = anniversary.date.split("-").map(Number);
+  if (anniversary.isLunar) {
+    try {
+      const solar = Lunar.fromYmd(y, m, d).getSolar();
+      return new Date(solar.getYear(), solar.getMonth() - 1, solar.getDay());
+    } catch {
+      return new Date(y, m - 1, d);
+    }
+  }
+  return new Date(y, m - 1, d);
+}
+
+export function getAnniversaries() {
+  // Order by upcoming solar occurrence (cannot sort in SQL due to lunar conversion)
+  return db
+    .select()
+    .from(anniversaries)
+    .orderBy(desc(anniversaries.createdAt))
+    .all();
+}
+
+export function getAnniversaryById(id: number) {
+  return db.select().from(anniversaries).where(eq(anniversaries.id, id)).get();
+}
+
+export function getTogetherAnniversary() {
+  const row = db
+    .select()
+    .from(anniversaries)
+    .where(eq(anniversaries.isTogether, 1))
+    .get();
+  return row ?? null;
+}
+
+export function getUpcomingAnniversary(): { name: string; date: string; daysUntil: number } | null {
+  const all = db.select().from(anniversaries).all();
+  if (all.length === 0) return null;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let closest: typeof all[0] | null = null;
+  let closestDays = Infinity;
+
+  for (const a of all) {
+    const solarDate = toSolarDate(a);
+    const thisYear = new Date(today.getFullYear(), solarDate.getMonth(), solarDate.getDate());
+    if (thisYear < today) {
+      thisYear.setFullYear(thisYear.getFullYear() + 1);
+    }
+    const diff = Math.floor((thisYear.getTime() - today.getTime()) / 86400000);
+    if (diff < closestDays) {
+      closestDays = diff;
+      closest = a;
+    }
+  }
+
+  if (!closest) return null;
+  return { name: closest.name, date: closest.date, daysUntil: closestDays };
+}
+
+export function sendAnniversaryReminders() {
+  const all = db.select().from(anniversaries).all();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const todayStr = today.toISOString().split("T")[0];
+
+  for (const a of all) {
+    const solarDate = toSolarDate(a);
+    const thisYear = new Date(today.getFullYear(), solarDate.getMonth(), solarDate.getDate());
+    if (thisYear < today) {
+      thisYear.setFullYear(thisYear.getFullYear() + 1);
+    }
+    const diff = Math.floor((thisYear.getTime() - today.getTime()) / 86400000);
+
+    // Remind if 0-7 days away (including day-of)
+    if (diff >= 0 && diff <= 7) {
+      const alreadySent = db
+        .select({ cnt: count() })
+        .from(notifications)
+        .where(
+          and(
+            eq(notifications.type, "anniversary_reminder"),
+            eq(notifications.linkId, a.id),
+            gte(notifications.createdAt, todayStr)
+          )
+        )
+        .get();
+
+      if (alreadySent && alreadySent.cnt > 0) continue;
+
+      const label = diff === 0 ? "就是今天！" : `距离「${a.name}」还剩 ${diff} 天`;
+      createNotification({
+        userId: a.userId,
+        type: "anniversary_reminder",
+        title: "纪念日提醒",
+        body: label,
+        linkType: "anniversary",
+        linkId: a.id,
+      });
+    }
+  }
 }
 
 // ─── Points Transactions ──────────────────────────────────────────────

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Plus, User, PenLine, Heart, ChefHat } from "lucide-react";
+import { Home, Plus, User, PenLine, Heart, ChefHat, CalendarDays } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -32,6 +32,11 @@ const createActions = [
     icon: ChefHat,
     href: "/recipes/create",
   },
+  {
+    label: "纪念日",
+    icon: CalendarDays,
+    href: "/anniversaries/create",
+  },
 ];
 
 export function BottomNav() {
@@ -48,6 +53,7 @@ export function BottomNav() {
   const isInTasks = pathname.startsWith("/tasks");
   const isInWishes = pathname.startsWith("/wishes");
   const isInRecipes = pathname.startsWith("/recipes");
+  const isInAnniversaries = pathname.startsWith("/anniversaries");
 
   function handlePlusClick() {
     if (isInTasks) {
@@ -56,6 +62,8 @@ export function BottomNav() {
       router.push("/wishes/create");
     } else if (isInRecipes) {
       router.push("/recipes/create");
+    } else if (isInAnniversaries) {
+      router.push("/anniversaries/create");
     } else {
       setOpen(true);
     }
@@ -78,7 +86,7 @@ export function BottomNav() {
                   onClick={handlePlusClick}
                   className={cn(
                     "flex flex-col items-center justify-center gap-0.5 w-full h-full transition-colors",
-                    (isInTasks || isInWishes || isInRecipes)
+                    (isInTasks || isInWishes || isInRecipes || isInAnniversaries)
                       ? "text-primary"
                       : "text-muted-foreground hover:text-foreground"
                   )}

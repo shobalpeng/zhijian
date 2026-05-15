@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Clock, CheckCircle, Heart } from "lucide-react";
+import { Clock, CheckCircle, Heart, CalendarDays } from "lucide-react";
 
 interface Activity {
   id: number;
@@ -9,6 +9,11 @@ interface Activity {
   time: string;
   label: string;
   pointLabel: string;
+}
+
+interface UpcomingAnniversary {
+  name: string;
+  daysUntil: number;
 }
 
 function relativeTime(iso: string): string {
@@ -25,6 +30,7 @@ function relativeTime(iso: string): string {
 
 export function ActivityTimeline() {
   const [activities, setActivities] = useState<Activity[] | null>(null);
+  const [upcoming, setUpcoming] = useState<UpcomingAnniversary | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -35,7 +41,16 @@ export function ActivityTimeline() {
     return () => { cancelled = true; };
   }, []);
 
-  if (!activities || activities.length === 0) return null;
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/anniversaries/upcoming")
+      .then(r => r.json())
+      .then(d => { if (!cancelled && d.anniversary) setUpcoming(d.anniversary); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
+  if ((!activities || activities.length === 0) && !upcoming) return null;
 
   return (
     <div className="px-4 py-2">
@@ -44,28 +59,49 @@ export function ActivityTimeline() {
           <Clock className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm font-medium">最近动态</span>
         </div>
-        <div className="space-y-2">
-          {activities.map((a) => (
-            <div key={`${a.type}-${a.id}`} className="flex items-start gap-3 text-sm">
-              <div className="mt-0.5">
-                {a.type === "task" ? (
-                  <CheckCircle className="h-4 w-4 text-blue-500" />
-                ) : (
-                  <Heart className="h-4 w-4 text-pink-500" />
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs leading-relaxed">
-                  <span className="text-muted-foreground">{a.label}</span>
-                  <span className={`font-bold ${a.pointLabel.includes("+") ? "text-emerald-600" : "text-red-500"}`}>
-                    {a.pointLabel}
-                  </span>
-                </p>
-                <p className="text-xs text-muted-foreground/70">{relativeTime(a.time)}</p>
-              </div>
+
+        {/* Upcoming anniversary */}
+        {upcoming && (
+          <div className="flex items-start gap-3 text-sm mb-3 pb-3 border-b border-border">
+            <div className="mt-0.5">
+              <CalendarDays className="h-4 w-4 text-rose-500" />
             </div>
-          ))}
-        </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs leading-relaxed">
+                <span className="text-muted-foreground">距离{upcoming.name}还剩</span>
+                <span className="font-bold text-blue-600">
+                  {" "}{upcoming.daysUntil === 0 ? "0天，就是今天！" : `${upcoming.daysUntil}天`}
+                </span>
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Recent activities */}
+        {activities && activities.length > 0 && (
+          <div className="space-y-2">
+            {activities.map((a) => (
+              <div key={`${a.type}-${a.id}`} className="flex items-start gap-3 text-sm">
+                <div className="mt-0.5">
+                  {a.type === "task" ? (
+                    <CheckCircle className="h-4 w-4 text-blue-500" />
+                  ) : (
+                    <Heart className="h-4 w-4 text-pink-500" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs leading-relaxed">
+                    <span className="text-muted-foreground">{a.label}</span>
+                    <span className={`font-bold ${a.pointLabel.includes("+") ? "text-emerald-600" : "text-red-500"}`}>
+                      {a.pointLabel}
+                    </span>
+                  </p>
+                  <p className="text-xs text-muted-foreground/70">{relativeTime(a.time)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

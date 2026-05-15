@@ -1,5 +1,4 @@
 const features = [
-  { title: "纪念日", emoji: "💝" },
   { title: "旅游记录", emoji: "✈️" },
   { title: "徒步记录", emoji: "🥾" },
   { title: "共享账本", emoji: "💰" },

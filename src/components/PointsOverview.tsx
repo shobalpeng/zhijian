@@ -11,6 +11,7 @@ export function PointsOverview() {
   const [data, setData] = useState<PointsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [togetherDays, setTogetherDays] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -23,13 +24,46 @@ export function PointsOverview() {
         if (!cancelled) {
           setData(d);
           setLoading(false);
-          // Trigger scale animation after data loads
           setTimeout(() => setMounted(true), 50);
         }
       })
       .catch(() => {
         if (!cancelled) setLoading(false);
       });
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/anniversaries")
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed");
+        return res.json();
+      })
+      .then((data) => {
+        if (cancelled) return;
+        const together = data.anniversaries?.find((a: { isTogether: number }) => a.isTogether === 1);
+        if (together) {
+          const [y, m, d] = together.date.split("-").map(Number);
+          let start: Date;
+          if (together.isLunar) {
+            try {
+              const { Lunar } = require("lunar-javascript");
+              const solar = Lunar.fromYmd(y, m, d).getSolar();
+              start = new Date(solar.getYear(), solar.getMonth() - 1, solar.getDay());
+            } catch {
+              start = new Date(y, m - 1, d);
+            }
+          } else {
+            start = new Date(y, m - 1, d);
+          }
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const diff = Math.floor((today.getTime() - start.getTime()) / 86400000);
+          setTogetherDays(Math.max(0, diff));
+        }
+      })
+      .catch(() => {});
     return () => { cancelled = true; };
   }, []);
 
@@ -65,6 +99,11 @@ export function PointsOverview() {
             <span className="text-xs text-muted-foreground">积分</span>
           </div>
         </div>
+        {togetherDays != null && (
+          <p className="text-center text-xs text-pink-600 font-medium mt-3 pt-3 border-t">
+            💕 和Ta在一起已经 {togetherDays} 天
+          </p>
+        )}
       </div>
     </div>
   );
