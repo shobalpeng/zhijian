@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local data
+data/zhijian.db
+data/zhijian.db-shm
+data/zhijian.db-wal
+data/uploads/
+drizzle/
