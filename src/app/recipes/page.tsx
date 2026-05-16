@@ -8,6 +8,8 @@ import { PullToRefresh } from "@/components/PullToRefresh";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/EmptyState";
+import { Skeleton } from "@/components/Skeleton";
 
 interface Recipe {
   id: number;
@@ -90,7 +92,7 @@ export default function RecipesPage() {
               key={s.key}
               onClick={() => setSort(s.key)}
               className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
+                "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
                 sort === s.key
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted text-muted-foreground hover:bg-muted/70"
@@ -104,19 +106,13 @@ export default function RecipesPage() {
         {/* Recipe list */}
         <div className="px-4 pb-4">
           {loading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="flex gap-3 rounded-xl bg-muted/50 animate-pulse h-[92px]" />
-              ))}
-            </div>
+            <Skeleton className="h-[92px] flex gap-3" count={3} />
           ) : recipes.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-              <span className="text-4xl mb-3">🍳</span>
-              <p className="text-sm">{debouncedSearch ? "没有找到匹配的菜谱" : "还没有添加菜谱"}</p>
-              <p className="text-xs text-muted-foreground/70 mt-1">
-                {debouncedSearch ? "换个关键词试试" : "点击下方 + 按钮添加第一道菜"}
-              </p>
-            </div>
+            <EmptyState
+              icon="🍳"
+              title={debouncedSearch ? "没有找到匹配的菜谱" : "还没有添加菜谱"}
+              description={debouncedSearch ? "换个关键词试试" : "点击下方 + 按钮添加第一道菜"}
+            />
           ) : (
             <div className="space-y-3">
               {recipes.map((recipe) => (

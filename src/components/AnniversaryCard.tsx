@@ -57,12 +57,12 @@ export function AnniversaryCard({ id, name, date, note, isLunar, isTogether }: A
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-medium truncate">{name}</h3>
             {isLunar === 1 && (
-              <span className="shrink-0 inline-flex items-center rounded-full bg-amber-100 text-amber-700 px-2 py-0.5 text-xs font-medium">
+              <span className="shrink-0 inline-flex items-center rounded-full bg-warning/10 text-warning-foreground dark:text-warning px-2 py-0.5 text-xs font-medium">
                 农历
               </span>
             )}
             {isTogether === 1 && (
-              <span className="shrink-0 inline-flex items-center rounded-full bg-pink-100 text-pink-600 px-2 py-0.5 text-xs font-medium">
+              <span className="shrink-0 inline-flex items-center rounded-full bg-primary/10 text-primary px-2 py-0.5 text-xs font-medium">
                 💕 在一起
               </span>
             )}
@@ -74,9 +74,9 @@ export function AnniversaryCard({ id, name, date, note, isLunar, isTogether }: A
           <span
             className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
               isToday
-                ? "bg-emerald-100 text-emerald-600"
+                ? "bg-success/10 text-success dark:text-green-400"
                 : text.startsWith("还有")
-                ? "bg-blue-100 text-blue-600"
+                ? "bg-info/10 text-info dark:text-blue-400"
                 : "bg-muted text-muted-foreground"
             }`}
           >

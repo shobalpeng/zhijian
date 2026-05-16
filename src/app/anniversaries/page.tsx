@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { TopBar } from "@/components/TopBar";
 import { AnniversaryCard } from "@/components/AnniversaryCard";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { EmptyState } from "@/components/EmptyState";
+import { Skeleton } from "@/components/Skeleton";
 
 interface Anniversary {
   id: number;
@@ -43,17 +45,9 @@ export default function AnniversariesPage() {
       <PullToRefresh onRefresh={load}>
         <div className="px-4 pt-4 pb-4">
           {loading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-[72px] rounded-xl bg-muted/50 animate-pulse" />
-              ))}
-            </div>
+            <Skeleton className="h-[72px]" count={3} />
           ) : items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-              <span className="text-4xl mb-3">💝</span>
-              <p className="text-sm">还没有添加纪念日</p>
-              <p className="text-xs text-muted-foreground/70 mt-1">点击下方 + 按钮添加第一个纪念日</p>
-            </div>
+            <EmptyState icon="💝" title="还没有添加纪念日" description="点击下方 + 按钮添加第一个纪念日" />
           ) : (
             <div className="space-y-3">
               {items.map((a) => (

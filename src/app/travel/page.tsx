@@ -8,6 +8,8 @@ import { DestinationCard } from "@/components/DestinationCard";
 import { ExpenseSummary } from "@/components/ExpenseSummary";
 import { ExpenseList } from "@/components/ExpenseList";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { EmptyState } from "@/components/EmptyState";
+import { Skeleton } from "@/components/Skeleton";
 import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getExpenseSummary } from "@/lib/db";
@@ -110,11 +112,7 @@ function TravelContent() {
       <PullToRefresh onRefresh={load}>
         <div className="px-4 pb-4">
           {loading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-[152px] rounded-xl bg-muted/50 animate-pulse" />
-              ))}
-            </div>
+            <Skeleton className="h-[152px]" count={3} />
           ) : (
             <>
               {/* Tab 1: Wishlist */}
@@ -140,10 +138,8 @@ function TravelContent() {
                     <span className="text-xs text-muted-foreground">添加目的地</span>
                   </button>
                   {wishlist.length === 0 && destinations.length === 0 && (
-                    <div className="col-span-2 flex flex-col items-center justify-center py-16 text-muted-foreground">
-                      <span className="text-4xl mb-3">🧭</span>
-                      <p className="text-sm">还没有目的地</p>
-                      <p className="text-xs text-muted-foreground/70 mt-1">添加你想去的地方吧</p>
+                    <div className="col-span-2">
+                      <EmptyState icon="🧭" title="还没有目的地" description="添加你想去的地方吧" />
                     </div>
                   )}
                 </div>

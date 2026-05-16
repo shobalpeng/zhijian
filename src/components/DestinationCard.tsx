@@ -29,8 +29,8 @@ export function DestinationCard({ id, name, coverImage, tagline, status, city }:
         <span
           className={`absolute top-2 right-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
             status === "visited"
-              ? "bg-emerald-100 text-emerald-700"
-              : "bg-blue-100 text-blue-600"
+              ? "bg-success/10 text-success dark:text-green-400"
+              : "bg-info/10 text-info dark:text-blue-400"
           }`}
         >
           {status === "visited" ? "已去过" : "想去"}

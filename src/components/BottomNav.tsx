@@ -105,7 +105,7 @@ export function BottomNav() {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t bg-background">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t bg-background" aria-label="主导航">
         <div className="mx-auto flex max-w-lg items-center justify-around h-16">
           {tabs.map((tab) => {
             if (tab.href === null) {
@@ -114,7 +114,7 @@ export function BottomNav() {
                   key="create"
                   onClick={handlePlusClick}
                   className={cn(
-                    "flex flex-col items-center justify-center gap-0.5 w-full h-full transition-colors",
+                    "flex flex-col items-center justify-center gap-0.5 w-full h-full transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none rounded-lg",
                     (isInTasks || isInWishes || isInRecipes || isInAnniversaries || isInTravel || isInWanders || isInDines || isInTodos || isInItems)
                       ? "text-primary"
                       : "text-muted-foreground hover:text-foreground"
@@ -131,11 +131,12 @@ export function BottomNav() {
                 key={tab.href}
                 href={tab.href}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-0.5 w-full h-full transition-colors",
+                  "flex flex-col items-center justify-center gap-0.5 w-full h-full transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none rounded-lg",
                   active
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
                 )}
+                aria-current={active ? "page" : undefined}
               >
                 <tab.icon className="h-6 w-6" />
                 <span className="text-xs">{tab.label}</span>

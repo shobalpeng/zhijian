@@ -31,7 +31,7 @@ export function ExpenseSummary({ data }: ExpenseSummaryProps) {
         <span className="text-xs w-8">我</span>
         <div className="flex-1 h-5 bg-muted rounded-full overflow-hidden flex">
           <div
-            className="h-full bg-blue-500 transition-all"
+            className="h-full bg-info transition-all"
             style={{ width: `${myPct}%` }}
           />
         </div>
@@ -41,7 +41,7 @@ export function ExpenseSummary({ data }: ExpenseSummaryProps) {
         <span className="text-xs w-8">Ta</span>
         <div className="flex-1 h-5 bg-muted rounded-full overflow-hidden flex">
           <div
-            className="h-full bg-pink-500 transition-all"
+            className="h-full bg-primary transition-all"
             style={{ width: `${partnerPct}%` }}
           />
         </div>

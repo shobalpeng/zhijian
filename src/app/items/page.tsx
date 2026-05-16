@@ -5,6 +5,8 @@ import { TopBar } from "@/components/TopBar";
 import { ItemCard } from "@/components/ItemCard";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/EmptyState";
+import { Skeleton } from "@/components/Skeleton";
 
 interface Item { id: number; name: string; date: string; price: number; category: string | null; status: string; retiredDate?: string | null; imageUrl: string | null; }
 
@@ -32,13 +34,13 @@ export default function ItemsPage() {
       <div className="flex gap-1 px-4 pt-3 pb-1">
         {[{k:"all",l:"全部"},{k:"active",l:"服役中"},{k:"retired",l:"已退役"}].map(t => (
           <button key={t.k} onClick={() => { setFilter(t.k); setLoading(true); }}
-            className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-colors", filter===t.k ? "bg-primary text-primary-foreground":"bg-muted text-muted-foreground hover:bg-muted/70")}>{t.l}</button>
+            className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none", filter===t.k ? "bg-primary text-primary-foreground":"bg-muted text-muted-foreground hover:bg-muted/70")}>{t.l}</button>
         ))}
       </div>
       <PullToRefresh onRefresh={load}>
         <div className="px-4 pt-4 pb-4">
-          {loading ? <div className="space-y-3">{Array.from({length:3}).map((_,i)=><div key={i} className="h-[80px] rounded-xl bg-muted/50 animate-pulse" />)}</div>
-          : sorted.length === 0 ? <div className="flex flex-col items-center justify-center py-16 text-muted-foreground"><span className="text-4xl mb-3">📊</span><p className="text-sm">还没有物品</p><p className="text-xs text-muted-foreground/70 mt-1">点击下方 + 按钮添加大件物品</p></div>
+          {loading ? <Skeleton className="h-[80px]" count={3} />
+          : sorted.length === 0 ? <EmptyState icon="📊" title="还没有物品" description="点击下方 + 按钮添加大件物品" />
           : <div className="space-y-3">{sorted.map(item => <ItemCard key={item.id} {...item} />)}</div>}
         </div>
       </PullToRefresh>

@@ -63,11 +63,15 @@ zhijian/
 │   │   ├── BottomNav.tsx   # 底部 Tab 导航 + 新建弹出
 │   │   ├── AppShell.tsx     # 页面外壳 (max-w-lg + BottomNav)
 │   │   ├── ThemeProvider.tsx # 双主题 (warm/dark)
+│   │   ├── PullToRefresh.tsx # 下拉刷新 (支持触摸 + 鼠标)
+│   │   ├── EmptyState.tsx   # 共享空状态组件 (icon + title + description)
+│   │   ├── Skeleton.tsx     # 共享加载骨架屏 (count + className)
 │   │   └── ... (各功能组件)
 │   ├── lib/
 │   │   ├── db.ts           # 所有数据库查询函数 (核心文件)
 │   │   ├── auth.ts         # iron-session 配置 + getSession()
-│   │   └── utils.ts        # cn() 工具函数
+│   │   ├── utils.ts        # cn() 工具函数
+│   │   └── api-fetch.ts    # API 包装 (错误处理 + toast 提示)
 │   ├── data/
 │   │   └── cities.ts       # 预设城市经纬度数据
 │   └── types/              # 类型声明

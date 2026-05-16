@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { TopBar } from "@/components/TopBar";
 import { NotificationItem } from "@/components/NotificationItem";
+import { EmptyState } from "@/components/EmptyState";
+import { Skeleton } from "@/components/Skeleton";
 
 interface Notification {
   id: number;
@@ -82,18 +84,9 @@ export default function NotificationsPage() {
       </div>
 
       {loading ? (
-        <div className="px-4 space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-[72px] rounded-xl bg-muted/50 animate-pulse"
-            />
-          ))}
-        </div>
+        <div className="px-4"><Skeleton className="h-[72px]" count={3} /></div>
       ) : notifications.length === 0 ? (
-        <div className="flex items-center justify-center py-16">
-          <p className="text-sm text-muted-foreground">暂无消息</p>
-        </div>
+        <EmptyState title="暂无消息" />
       ) : (
         <div className="px-4 space-y-2 pb-4">
           {notifications.map((n) => (

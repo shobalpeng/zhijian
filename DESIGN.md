@@ -552,11 +552,39 @@
 |------|-------------|----------------|
 | 主色调 | 暖粉/珊瑚色系 | 中性灰/冷调 |
 | 辅色 | 奶油黄、桃色 | 石板灰、冰蓝 |
-| 圆角 | 大圆角 | 小圆角 |
-| 字体 | 圆体/手写感 | 无衬线 |
+| 圆角 | 大圆角 (0.875rem) | 大圆角 (0.875rem) |
+| 字体 | 系统无衬线 | 系统无衬线 |
 | 阴影 | 柔和弥散阴影 | 锐利/无边 |
 
 通过 CSS 变量 + `data-theme` 属性实现一键切换。
+
+### CSS 变量体系
+
+所有颜色以裸 HSL 值存储在 CSS 变量中，使用时需 `hsl(var(--xxx))` 包裹。
+
+| Token | 用途 |
+|-------|------|
+| `--background` / `--foreground` | 页面背景 / 正文文字 |
+| `--primary` / `--primary-foreground` | 品牌色（粉 350 70% 58%） / 按钮文字 |
+| `--card` / `--card-foreground` | 卡片背景 / 卡片文字 |
+| `--muted` / `--muted-foreground` | 次要背景 / 次要文字 |
+| `--secondary` / `--secondary-foreground` | 辅助背景 / 辅助文字 |
+| `--accent` / `--accent-foreground` | 强调背景 / 强调文字 |
+| `--destructive` / `--destructive-foreground` | 危险操作（红） / 危险操作文字 |
+| `--success` / `--success-foreground` | 成功/完成状态（绿 142 76% 36%） |
+| `--warning` / `--warning-foreground` | 警告/提醒状态（橙 38 92% 50%） |
+| `--info` / `--info-foreground` | 信息/进行中状态（蓝 221 83% 53%） |
+| `--border` / `--input` / `--ring` | 边框 / 输入框 / 焦点环 |
+
+### 共享 UI 模式
+
+| 模式 | 组件 | 说明 |
+|------|------|------|
+| 空状态 | `EmptyState` | 统一 icon + title + description + action，所有列表页复用 |
+| 加载状态 | `Skeleton` | 统一骨架屏，配置 count + className |
+| 下拉刷新 | `PullToRefresh` | 支持触摸拖拽 + 鼠标拖拽 |
+| Toast 通知 | `sonner` | `toast.success()` / `toast.error()`，`<Toaster>` 在根布局 |
+| API 调用 | `fetchWithToast` | `src/lib/api-fetch.ts` 封装，自动拦截错误并弹出 toast |
 
 ---
 

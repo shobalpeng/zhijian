@@ -15,7 +15,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <main className="mx-auto w-full max-w-lg pb-20">
+      <main className="mx-auto w-full max-w-lg pb-20" role="main">
         {children}
       </main>
       <BottomNav />

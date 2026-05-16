@@ -5,6 +5,7 @@ import { TopBar } from "@/components/TopBar";
 import { WanderCard } from "@/components/WanderCard";
 import { WanderStats } from "@/components/WanderStats";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { EmptyState } from "@/components/EmptyState";
 
 interface Wander {
   id: number;
@@ -58,11 +59,7 @@ export default function WandersPage() {
               ))}
             </div>
           ) : items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-              <span className="text-4xl mb-3">🚶</span>
-              <p className="text-sm">还没有漫游记录</p>
-              <p className="text-xs text-muted-foreground/70 mt-1">点击下方 + 按钮记录一次城市漫步</p>
-            </div>
+            <EmptyState icon="🚶" title="还没有漫游记录" description="点击下方 + 按钮记录一次城市漫步" />
           ) : (
             <div className="space-y-0">
               {/* Stats */}

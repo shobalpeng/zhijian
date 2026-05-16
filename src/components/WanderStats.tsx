@@ -16,7 +16,7 @@ export function WanderStats({ stats }: WanderStatsProps) {
             key={s.location}
             className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${
               i === 0
-                ? "bg-amber-100 text-amber-700"
+                ? "bg-warning/10 text-warning-foreground dark:text-warning"
                 : "bg-muted text-muted-foreground"
             }`}
           >

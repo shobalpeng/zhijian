@@ -43,8 +43,14 @@ export function TopBar({ title, showBell = true, showBack = true }: TopBarProps)
       <div className="flex items-center gap-1">
         {showBack && (
           <button
-            onClick={() => router.back()}
-            className="inline-flex items-center justify-center h-10 w-10 -ml-2 rounded-md hover:bg-muted transition-colors"
+            onClick={() => {
+              if (window.history.length > 1) {
+                router.back();
+              } else {
+                router.push("/");
+              }
+            }}
+            className="inline-flex items-center justify-center h-11 w-11 -ml-2 rounded-md hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             aria-label="返回"
           >
             <ArrowLeft className="h-5 w-5" />
@@ -55,7 +61,8 @@ export function TopBar({ title, showBell = true, showBack = true }: TopBarProps)
       {showBell && (
         <Link
           href="/notifications"
-          className="relative inline-flex items-center justify-center h-10 w-10 rounded-md hover:bg-muted transition-colors"
+          className="relative inline-flex items-center justify-center h-11 w-11 rounded-md hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          aria-label="消息通知"
         >
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (

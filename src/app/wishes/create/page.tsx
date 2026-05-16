@@ -72,18 +72,32 @@ export default function CreateWishPage() {
         {/* Description */}
         <div className="space-y-2">
           <Label htmlFor="description">心愿描述（可选）</Label>
-          <div className="relative">
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="详细描述你的心愿..."
-              rows={4}
-            />
-            <div className="absolute bottom-2 right-2">
-              <ImageUpload onUpload={(url) => setImageUrl(url)} />
+          <Textarea
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="详细描述你的心愿..."
+            rows={4}
+          />
+        </div>
+
+        {/* Image */}
+        <div className="space-y-2">
+          <Label>图片（可选）</Label>
+          {imageUrl ? (
+            <div className="relative rounded-lg overflow-hidden ring-1 ring-foreground/10">
+              <img src={imageUrl} alt="" className="w-full h-48 object-cover" />
+              <button
+                type="button"
+                onClick={() => setImageUrl(null)}
+                className="absolute top-2 right-2 rounded-full bg-background/80 p-1.5 text-xs text-muted-foreground hover:text-foreground"
+              >
+                移除
+              </button>
             </div>
-          </div>
+          ) : (
+            <ImageUpload onUpload={(url) => setImageUrl(url)} />
+          )}
         </div>
 
         {/* Points */}
@@ -99,18 +113,6 @@ export default function CreateWishPage() {
             required
           />
         </div>
-
-        {/* Uploaded image preview */}
-        {imageUrl && (
-          <div className="rounded-lg overflow-hidden ring-1 ring-foreground/10">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={imageUrl}
-              alt="Uploaded"
-              className="w-full h-48 object-cover"
-            />
-          </div>
-        )}
 
         {/* Submit */}
         <div className="mt-auto pt-4">

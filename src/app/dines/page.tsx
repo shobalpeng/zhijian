@@ -5,6 +5,7 @@ import { TopBar } from "@/components/TopBar";
 import { DineCard } from "@/components/DineCard";
 import { DineStats } from "@/components/DineStats";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { EmptyState } from "@/components/EmptyState";
 
 interface Dine {
   id: number; restaurant: string; date: string; people: string | null;
@@ -45,11 +46,7 @@ export default function DinesPage() {
               ))}
             </div>
           ) : items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-              <span className="text-4xl mb-3">🍽️</span>
-              <p className="text-sm">还没有聚餐记录</p>
-              <p className="text-xs text-muted-foreground/70 mt-1">点击下方 + 按钮记录一次聚餐</p>
-            </div>
+            <EmptyState icon="🍽️" title="还没有聚餐记录" description="点击下方 + 按钮记录一次聚餐" />
           ) : (
             <>
               <div className="mb-4"><DineStats stats={stats} /></div>

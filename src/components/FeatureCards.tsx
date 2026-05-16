@@ -12,8 +12,9 @@ export function FeatureCards() {
           <div
             key={feature.title}
             className="flex flex-col items-center justify-center gap-2 rounded-xl bg-card ring-1 ring-foreground/10 p-4 opacity-50 cursor-not-allowed"
+            aria-disabled="true"
           >
-            <span className="text-2xl">{feature.emoji}</span>
+            <span className="text-2xl" aria-hidden="true">{feature.emoji}</span>
             <span className="text-xs text-muted-foreground">{feature.title}</span>
           </div>
         ))}

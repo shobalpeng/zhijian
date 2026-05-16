@@ -17,22 +17,26 @@ export function PullToRefresh({ onRefresh, children }: Props) {
 
   const THRESHOLD = 60;
 
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (containerRef.current && containerRef.current.scrollTop === 0) {
-      startY.current = e.touches[0].clientY;
+  const canPull = () => {
+    return containerRef.current && containerRef.current.scrollTop === 0;
+  };
+
+  const handlePullStart = useCallback((clientY: number) => {
+    if (canPull()) {
+      startY.current = clientY;
       pulling.current = true;
     }
   }, []);
 
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+  const handlePullMove = useCallback((clientY: number) => {
     if (!pulling.current) return;
-    const dy = e.touches[0].clientY - startY.current;
+    const dy = clientY - startY.current;
     if (dy > 0) {
       setPullDistance(Math.min(dy * 0.4, 120));
     }
   }, []);
 
-  const handleTouchEnd = useCallback(async () => {
+  const handlePullEnd = useCallback(async () => {
     if (pullDistance > THRESHOLD && !refreshing) {
       setRefreshing(true);
       setPullDistance(THRESHOLD);
@@ -48,13 +52,43 @@ export function PullToRefresh({ onRefresh, children }: Props) {
     pulling.current = false;
   }, [pullDistance, refreshing, onRefresh]);
 
+  // Touch events
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    handlePullStart(e.touches[0].clientY);
+  }, [handlePullStart]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    handlePullMove(e.touches[0].clientY);
+  }, [handlePullMove]);
+
+  const handleTouchEnd = useCallback(() => {
+    handlePullEnd();
+  }, [handlePullEnd]);
+
+  // Mouse events (desktop)
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    handlePullStart(e.clientY);
+  }, [handlePullStart]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    handlePullMove(e.clientY);
+  }, [handlePullMove]);
+
+  const handleMouseUp = useCallback(() => {
+    handlePullEnd();
+  }, [handlePullEnd]);
+
   return (
     <div
       ref={containerRef}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      className="min-h-full"
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+      className="min-h-full select-none"
     >
       {/* Pull indicator */}
       <div

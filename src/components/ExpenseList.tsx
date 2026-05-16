@@ -110,7 +110,9 @@ export function ExpenseList({ expenses, destinations, onRefresh }: ExpenseListPr
         <div className="rounded-xl bg-card ring-1 ring-foreground/10 p-4 space-y-3">
           <p className="text-sm font-medium">添加花费</p>
 
+          <label className="text-xs text-muted-foreground">目的地</label>
           <select
+            id="expense-dest"
             value={newDestId}
             onChange={(e) => setNewDestId(e.target.value)}
             className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
@@ -148,9 +150,11 @@ export function ExpenseList({ expenses, destinations, onRefresh }: ExpenseListPr
               className="flex-1"
             />
             <select
+              id="expense-payer"
               value={newPayer}
               onChange={(e) => setNewPayer(e.target.value)}
               className="rounded-lg border bg-background px-3 py-2 text-sm w-20"
+              aria-label="付款人"
             >
               <option value="me">我</option>
               <option value="partner">Ta</option>
@@ -203,7 +207,7 @@ export function ExpenseList({ expenses, destinations, onRefresh }: ExpenseListPr
                   <span className="text-muted-foreground text-xs">{cfg.label}</span>
                   {e.note && <span className="text-xs text-muted-foreground/70 truncate flex-1">{e.note}</span>}
                   <span className="tabular-nums font-medium text-xs">¥{e.amount}</span>
-                  <span className={cn("text-xs px-1.5 py-0.5 rounded", e.payer === "me" ? "bg-blue-100 text-blue-600" : "bg-pink-100 text-pink-600")}>
+                  <span className={cn("text-xs px-1.5 py-0.5 rounded", e.payer === "me" ? "bg-info/10 text-info dark:text-blue-400" : "bg-primary/10 text-primary")}>
                     {e.payer === "me" ? "我" : "Ta"}
                   </span>
                   <button

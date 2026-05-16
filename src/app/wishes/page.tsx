@@ -5,6 +5,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { TopBar } from "@/components/TopBar";
 import { WishCard } from "@/components/WishCard";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { EmptyState } from "@/components/EmptyState";
+import { Skeleton } from "@/components/Skeleton";
 import {
   Select,
   SelectContent,
@@ -120,20 +122,9 @@ function WishesContent() {
       {/* Wish list */}
       <div className="px-4">
         {loading ? (
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-[72px] rounded-xl bg-muted/50 animate-pulse"
-              />
-            ))}
-          </div>
+          <Skeleton className="h-[72px]" count={3} />
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <span className="text-5xl mb-4">💝</span>
-            <p className="text-sm text-muted-foreground mb-1">还没有心愿</p>
-            <p className="text-xs text-muted-foreground mb-4">发布一个心愿，让Ta来实现吧</p>
-          </div>
+          <EmptyState icon="💝" title="还没有心愿" description="发布一个心愿，让Ta来实现吧" />
         ) : (
           <div className="space-y-3">
             {filtered.map((wish) => (

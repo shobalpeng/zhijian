@@ -6,6 +6,8 @@ import { TopBar } from "@/components/TopBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/EmptyState";
+import { Skeleton } from "@/components/Skeleton";
 import { Archive, GripVertical, X } from "lucide-react";
 
 interface Todo { id: number; content: string; done: number; area: string; sortOrder: number; }
@@ -93,7 +95,7 @@ export default function TodosPage() {
         </div>
 
         {loading ? (
-          <div className="space-y-2">{Array.from({length:3}).map((_,i)=><div key={i} className="h-10 rounded-lg bg-muted/50 animate-pulse" />)}</div>
+          <Skeleton className="h-10 rounded-lg" count={3} />
         ) : (
           <>
             {/* Add input */}
@@ -125,7 +127,7 @@ export default function TodosPage() {
                   <button onClick={() => handleDelete(todo.id)} className="opacity-0 group-hover:opacity-100 text-muted-foreground/30 hover:text-red-500 transition-all"><X className="h-3.5 w-3.5" /></button>
                 </div>
               ))}
-              {items.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">还没有待办</p>}
+              {items.length === 0 && <EmptyState title="还没有待办" />}
             </div>
 
             {hasDone && (
