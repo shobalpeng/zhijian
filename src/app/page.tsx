@@ -5,7 +5,7 @@ import { PendingCard } from "@/components/PendingCard";
 import { FeatureCards } from "@/components/FeatureCards";
 import { ActivityTimeline } from "@/components/ActivityTimeline";
 import { Card, CardContent } from "@/components/ui/card";
-import { ListTodo, Heart, ChefHat, CalendarDays, Map } from "lucide-react";
+import { ListTodo, Heart, ChefHat, CalendarDays, Map, Footprints } from "lucide-react";
 
 export default function Home() {
   return (
@@ -63,6 +63,16 @@ export default function Home() {
                 <Map className="h-4 w-4" />
               </div>
               <span className="font-medium text-xs">旅游</span>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/wanders">
+          <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
+            <CardContent className="flex flex-col items-center gap-1 p-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-lime-100 text-lime-600">
+                <Footprints className="h-4 w-4" />
+              </div>
+              <span className="font-medium text-xs">城市漫游</span>
             </CardContent>
           </Card>
         </Link>

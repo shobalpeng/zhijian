@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Plus, User, PenLine, Heart, ChefHat, CalendarDays, Map } from "lucide-react";
+import { Home, Plus, User, PenLine, Heart, ChefHat, CalendarDays, Map, Footprints } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -42,6 +42,11 @@ const createActions = [
     icon: Map,
     href: "/travel/create",
   },
+  {
+    label: "漫游",
+    icon: Footprints,
+    href: "/wanders/create",
+  },
 ];
 
 export function BottomNav() {
@@ -60,6 +65,7 @@ export function BottomNav() {
   const isInRecipes = pathname.startsWith("/recipes");
   const isInAnniversaries = pathname.startsWith("/anniversaries");
   const isInTravel = pathname.startsWith("/travel");
+  const isInWanders = pathname.startsWith("/wanders");
 
   function handlePlusClick() {
     if (isInTasks) {
@@ -72,6 +78,8 @@ export function BottomNav() {
       router.push("/anniversaries/create");
     } else if (isInTravel) {
       router.push("/travel/create");
+    } else if (isInWanders) {
+      router.push("/wanders/create");
     } else {
       setOpen(true);
     }
@@ -94,7 +102,7 @@ export function BottomNav() {
                   onClick={handlePlusClick}
                   className={cn(
                     "flex flex-col items-center justify-center gap-0.5 w-full h-full transition-colors",
-                    (isInTasks || isInWishes || isInRecipes || isInAnniversaries || isInTravel)
+                    (isInTasks || isInWishes || isInRecipes || isInAnniversaries || isInTravel || isInWanders)
                       ? "text-primary"
                       : "text-muted-foreground hover:text-foreground"
                   )}

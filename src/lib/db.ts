@@ -11,6 +11,7 @@ import {
   anniversaries,
   destinations,
   expenses,
+  wanders,
 } from "@/db/schema";
 import { eq, and, or, desc, sql, count, like, gte } from "drizzle-orm";
 import { Lunar } from "lunar-javascript";
@@ -176,6 +177,26 @@ export function getDestinations() {
 
 export function getDestinationById(id: number) {
   return db.select().from(destinations).where(eq(destinations.id, id)).get();
+}
+
+// ─── Wanders ──────────────────────────────────────────────────────────
+
+export function getWanders() {
+  return db.select().from(wanders).orderBy(desc(wanders.date)).all();
+}
+
+export function getWanderById(id: number) {
+  return db.select().from(wanders).where(eq(wanders.id, id)).get();
+}
+
+export function getWanderStats(): { location: string; count: number }[] {
+  return db
+    .select({ location: wanders.location, cnt: count() })
+    .from(wanders)
+    .groupBy(wanders.location)
+    .orderBy(desc(count()))
+    .all()
+    .map((r) => ({ location: r.location, count: r.cnt }));
 }
 
 export function getExpensesForDestination(destinationId: number) {

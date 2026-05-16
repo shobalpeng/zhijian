@@ -120,6 +120,16 @@ export const destinations = sqliteTable("destinations", {
   updatedAt: text("updated_at").notNull().$defaultFn(() => new Date().toISOString()),
 });
 
+export const wanders = sqliteTable("wanders", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  location: text("location").notNull(),
+  date: text("date").notNull(), // YYYY-MM-DD
+  imageUrl: text("image_url"),
+  mood: text("mood"),
+  creatorId: integer("creator_id").notNull().references(() => users.id),
+  createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
+});
+
 export const expenses = sqliteTable("expenses", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   destinationId: integer("destination_id").notNull().references(() => destinations.id),
