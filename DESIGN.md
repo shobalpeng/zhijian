@@ -31,6 +31,7 @@
 - 城市漫游（时间线卡片流 + 地点聚合统计，轻量级城市漫步记录）
 - 聚餐记录（时间线卡片流 + 餐厅统计 + 星级评分）
 - 待办（共享便利贴，划掉/归档/拖拽排序，无指派无截止日期）
+- 日均成本（大件物品购买日起日均计算，服役中/已退役状态，退役后冻结计算）
 - 消息中心（应用内通知，已读/未读追踪）
 - 双主题（温馨 / 黑夜，CSS 变量一键切换）
 - 管理员后台（数据增删查改、分页）
@@ -379,6 +380,21 @@
 | creator_id | integer | 创建者 |
 | created_at | text | |
 
+### items
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | integer | 主键 |
+| name | text | 物品名 |
+| date | text | 购买日期 |
+| price | real | 价格 |
+| category | text? | 电子/家居/户外/服饰/其他 |
+| status | text | active/retired |
+| retired_date | text? | 退役日期 |
+| image_url | text? | 照片 |
+| note | text? | 备注 |
+| creator_id | integer | 创建者 |
+| created_at | text | |
+
 ### dines
 | 字段 | 类型 | 说明 |
 |------|------|------|
@@ -510,6 +526,23 @@
 ### 页面
 - `/todos` — 主列表：Tab切换 + 输入框 + 列表 + 归档按钮
 - `/todos/archive` — 归档页：Tab切换 + 恢复按钮
+
+---
+
+## 日均成本功能（2026-05）
+
+### 业务规则
+- 记录大件物品，购买日起至今（或退役日）日均成本
+- 状态：服役中 / 已退役，退役后自动记录退役日期，冻结日均计算
+- 筛选：全部 / 服役中 / 已退役
+
+### 数据模型
+- **items**：name, date, price, category(电子/家居/户外/服饰/其他), status(active/retired), retiredDate, imageUrl, note
+
+### 页面
+- `/items` — 卡片列表（日均排序 + 状态筛选Tab）
+- `/items/create` — 创建页
+- `/items/[id]/edit` — 编辑 + 删除
 
 ---
 

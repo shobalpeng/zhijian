@@ -120,6 +120,20 @@ export const destinations = sqliteTable("destinations", {
   updatedAt: text("updated_at").notNull().$defaultFn(() => new Date().toISOString()),
 });
 
+export const items = sqliteTable("items", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  date: text("date").notNull(), // YYYY-MM-DD
+  price: real("price").notNull(),
+  category: text("category"), // 电子/家居/户外/服饰/其他
+  status: text("status").notNull().default("active"), // active | retired
+  retiredDate: text("retired_date"),
+  imageUrl: text("image_url"),
+  note: text("note"),
+  creatorId: integer("creator_id").notNull().references(() => users.id),
+  createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
+});
+
 export const todos = sqliteTable("todos", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   content: text("content").notNull(),

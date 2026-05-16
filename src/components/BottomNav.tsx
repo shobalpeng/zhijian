@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Plus, User, PenLine, Heart, ChefHat, CalendarDays, Map, Footprints, UtensilsCrossed, CheckSquare } from "lucide-react";
+import { Home, Plus, User, PenLine, Heart, ChefHat, CalendarDays, Map, Footprints, UtensilsCrossed, CheckSquare, Calculator } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -57,6 +57,11 @@ const createActions = [
     icon: CheckSquare,
     href: "/todos",
   },
+  {
+    label: "日均成本",
+    icon: Calculator,
+    href: "/items/create",
+  },
 ];
 
 export function BottomNav() {
@@ -78,6 +83,7 @@ export function BottomNav() {
   const isInWanders = pathname.startsWith("/wanders");
   const isInDines = pathname.startsWith("/dines");
   const isInTodos = pathname.startsWith("/todos");
+  const isInItems = pathname.startsWith("/items");
 
   function handlePlusClick() {
     if (isInTasks) router.push("/tasks/create");
@@ -88,6 +94,7 @@ export function BottomNav() {
     else if (isInWanders) router.push("/wanders/create");
     else if (isInDines) router.push("/dines/create");
     else if (isInTodos) router.push("/todos");
+    else if (isInItems) router.push("/items/create");
     else setOpen(true);
   }
 
@@ -108,7 +115,7 @@ export function BottomNav() {
                   onClick={handlePlusClick}
                   className={cn(
                     "flex flex-col items-center justify-center gap-0.5 w-full h-full transition-colors",
-                    (isInTasks || isInWishes || isInRecipes || isInAnniversaries || isInTravel || isInWanders || isInDines || isInTodos)
+                    (isInTasks || isInWishes || isInRecipes || isInAnniversaries || isInTravel || isInWanders || isInDines || isInTodos || isInItems)
                       ? "text-primary"
                       : "text-muted-foreground hover:text-foreground"
                   )}

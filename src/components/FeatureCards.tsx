@@ -1,5 +1,5 @@
 const features = [
-  { title: "共享账本", emoji: "💰" },
+  { title: "共享账本", emoji: "💳" },
   { title: "体重记录", emoji: "⚖️" },
 ];
 

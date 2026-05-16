@@ -5,7 +5,7 @@ import { PendingCard } from "@/components/PendingCard";
 import { FeatureCards } from "@/components/FeatureCards";
 import { ActivityTimeline } from "@/components/ActivityTimeline";
 import { Card, CardContent } from "@/components/ui/card";
-import { ListTodo, Heart, ChefHat, CalendarDays, Map, Footprints, UtensilsCrossed, CheckSquare } from "lucide-react";
+import { ListTodo, Heart, ChefHat, CalendarDays, Map, Footprints, UtensilsCrossed, CheckSquare, Calculator } from "lucide-react";
 
 export default function Home() {
   return (
@@ -93,6 +93,16 @@ export default function Home() {
                 <CheckSquare className="h-4 w-4" />
               </div>
               <span className="font-medium text-xs">待办</span>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/items">
+          <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
+            <CardContent className="flex flex-col items-center gap-1 p-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
+                <Calculator className="h-4 w-4" />
+              </div>
+              <span className="font-medium text-xs">日均成本</span>
             </CardContent>
           </Card>
         </Link>

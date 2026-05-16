@@ -14,6 +14,7 @@ import {
   wanders,
   dines,
   todos,
+  items,
 } from "@/db/schema";
 import { eq, and, or, desc, sql, count, like, gte } from "drizzle-orm";
 import { Lunar } from "lunar-javascript";
@@ -299,6 +300,18 @@ export function reorderTodos(ids: number[]) {
   ids.forEach((id, i) => {
     db.update(todos).set({ sortOrder: i }).where(eq(todos.id, id)).run();
   });
+}
+
+// ─── Items (日均成本) ──────────────────────────────────────────────────
+
+export function getItems(status?: string | null) {
+  let q = db.select().from(items).$dynamic();
+  if (status && status !== "all") q = q.where(eq(items.status, status));
+  return q.orderBy(desc(items.date)).all();
+}
+
+export function getItemById(id: number) {
+  return db.select().from(items).where(eq(items.id, id)).get();
 }
 
 // ─── Dines ────────────────────────────────────────────────────────────
