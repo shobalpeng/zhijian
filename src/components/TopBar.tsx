@@ -56,7 +56,7 @@ export function TopBar({ title, showBell = true, showBack = true }: TopBarProps)
             <ArrowLeft className="h-5 w-5" />
           </button>
         )}
-        <h1 className="text-lg font-semibold">{title}</h1>
+        <h1 className="text-lg font-bold font-heading tracking-wide">{title}</h1>
       </div>
       {showBell && (
         <Link
