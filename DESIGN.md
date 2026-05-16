@@ -27,13 +27,14 @@
 - 心愿清单（心愿花积分）
 - 共享菜谱（菜谱库 + 做菜记录 + 评分）
 - 纪念日（农历支持 + 倒计时 + 在一起天数 + 提前提醒）
+- 旅游记录（愿望清单 + 足迹地图 + 花费记录，Leaflet 真实地图）
 - 消息中心（应用内通知，已读/未读追踪）
 - 双主题（温馨 / 黑夜，CSS 变量一键切换）
 - 管理员后台（数据增删查改、分页）
 - 关于织间页面
 
 ### 后续迭代候选
-生理期、旅游记录、大件物品成本、共享账本、体重记录、户外徒步
+生理期、大件物品成本、共享账本、体重记录、户外徒步
 
 ---
 
@@ -333,6 +334,37 @@
 | created_at | text | |
 | updated_at | text | |
 
+### destinations
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | integer | 主键 |
+| name | text | 目的地名 |
+| cover_image | text? | 封面图 |
+| tagline | text? | 标语 |
+| status | text | wishlist / visited |
+| city | text? | 城市名 |
+| lat | real? | 纬度 |
+| lng | real? | 经度 |
+| places_to_visit | text? | 想去的地点 |
+| itinerary_draft | text? | 行程草稿 |
+| budget_estimate | real? | 预算估算 |
+| notes | text? | 备注 |
+| visited_at | text? | 去过时间 |
+| creator_id | integer | 创建者 |
+| created_at | text | |
+| updated_at | text | |
+
+### expenses
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | integer | 主键 |
+| destination_id | integer | 关联目的地 |
+| category | text | transport/accommodation/dining/tickets/shopping/other |
+| amount | real | 金额 |
+| payer | text | me / partner |
+| note | text? | 备注 |
+| created_at | text | |
+
 ---
 
 ## 菜谱功能（2026-05）
@@ -364,6 +396,28 @@
 - `/anniversaries` — 列表页：名称 + 日期 + 相对天数标签
 - `/anniversaries/create` — 创建页：名称、日期、农历开关、备注、（在一起开关，仅当无现有在一起纪念日）
 - `/anniversaries/[id]/edit` — 编辑 + 删除
+
+---
+
+## 旅游功能（2026-05）
+
+### 业务规则
+- 愿望清单：灵感画布卡片，详情页是共享攻略笔记本
+- 足迹地图：Leaflet 真实地图，已去过/想去标记，中国/世界切换
+- 花费记录：分类（交通/住宿/餐饮/门票/购物/其他），标记支付方
+- 城市通过 Nominatim API 搜索定位，自动填入经纬度
+- 标记去过：一键从愿望清单移到足迹地图
+- 花费记录在 Tab 页按目的地分组 + 目的地详情页直接管理
+
+### 数据模型
+- **destinations**：name, coverImage, tagline, status(wishlist/visited), city, lat, lng, placesToVisit, itineraryDraft, budgetEstimate, notes, visitedAt
+- **expenses**：destinationId, category, amount, payer(me/partner), note
+
+### 页面
+- `/travel` — 三 Tab 主页：愿望清单卡片 / 足迹地图 / 花费记录
+- `/travel/create` — 添加目的地：城市搜索定位 + 经纬度
+- `/travel/[id]` — 攻略笔记本 + 标记去过 + 花费管理
+- `/travel/[id]/edit` — 编辑目的地
 
 ---
 
