@@ -9,6 +9,8 @@ import {
   recipes,
   cookHistory,
   anniversaries,
+  destinations,
+  expenses,
 } from "@/db/schema";
 import { eq, and, or, desc, sql, count, like, gte } from "drizzle-orm";
 import { Lunar } from "lunar-javascript";
@@ -164,6 +166,59 @@ export function createNotification(data: {
     isRead: 0,
     createdAt: new Date().toISOString(),
   }).run();
+}
+
+// ─── Travel ────────────────────────────────────────────────────────────
+
+export function getDestinations() {
+  return db.select().from(destinations).orderBy(desc(destinations.updatedAt)).all();
+}
+
+export function getDestinationById(id: number) {
+  return db.select().from(destinations).where(eq(destinations.id, id)).get();
+}
+
+export function getExpensesForDestination(destinationId: number) {
+  return db
+    .select()
+    .from(expenses)
+    .where(eq(expenses.destinationId, destinationId))
+    .orderBy(desc(expenses.createdAt))
+    .all();
+}
+
+export function getAllExpenses() {
+  return db
+    .select({
+      id: expenses.id,
+      destinationId: expenses.destinationId,
+      category: expenses.category,
+      amount: expenses.amount,
+      payer: expenses.payer,
+      note: expenses.note,
+      createdAt: expenses.createdAt,
+      destinationName: destinations.name,
+    })
+    .from(expenses)
+    .leftJoin(destinations, eq(expenses.destinationId, destinations.id))
+    .orderBy(desc(expenses.createdAt))
+    .all();
+}
+
+export function getExpenseSummary() {
+  const all = getAllExpenses();
+  const total = all.reduce((s, e) => s + e.amount, 0);
+  const myTotal = all.filter((e) => e.payer === "me").reduce((s, e) => s + e.amount, 0);
+  const partnerTotal = all.filter((e) => e.payer === "partner").reduce((s, e) => s + e.amount, 0);
+  const diff = Math.abs(myTotal - partnerTotal);
+  const whoOwes = myTotal > partnerTotal ? "Ta" : "我";
+  return {
+    total,
+    myTotal,
+    partnerTotal,
+    diff,
+    whoOwes: diff === 0 ? null : `${whoOwes}多付了 ¥${diff}`,
+  };
 }
 
 // ─── Points Transactions ──────────────────────────────────────────────

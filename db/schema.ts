@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, type SQLiteColumn } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, real, type SQLiteColumn } from "drizzle-orm/sqlite-core";
 
 export const users = sqliteTable("users", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -99,6 +99,35 @@ export const anniversaries = sqliteTable("anniversaries", {
   isTogether: integer("is_together").notNull().default(0),
   createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
   updatedAt: text("updated_at").notNull().$defaultFn(() => new Date().toISOString()),
+});
+
+export const destinations = sqliteTable("destinations", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  coverImage: text("cover_image"),
+  tagline: text("tagline"),
+  status: text("status").notNull().default("wishlist"), // wishlist | visited
+  city: text("city"),
+  lat: real("lat"),
+  lng: real("lng"),
+  placesToVisit: text("places_to_visit"),
+  itineraryDraft: text("itinerary_draft"),
+  budgetEstimate: real("budget_estimate"),
+  notes: text("notes"),
+  visitedAt: text("visited_at"),
+  creatorId: integer("creator_id").notNull().references(() => users.id),
+  createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
+  updatedAt: text("updated_at").notNull().$defaultFn(() => new Date().toISOString()),
+});
+
+export const expenses = sqliteTable("expenses", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  destinationId: integer("destination_id").notNull().references(() => destinations.id),
+  category: text("category").notNull(), // transport | accommodation | dining | tickets | shopping | other
+  amount: integer("amount").notNull(),
+  payer: text("payer").notNull(), // me | partner
+  note: text("note"),
+  createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
 });
 
 export const pointTransactions = sqliteTable("point_transactions", {
