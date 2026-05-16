@@ -5,7 +5,7 @@ import { PendingCard } from "@/components/PendingCard";
 import { FeatureCards } from "@/components/FeatureCards";
 import { ActivityTimeline } from "@/components/ActivityTimeline";
 import { Card, CardContent } from "@/components/ui/card";
-import { ListTodo, Heart, ChefHat, CalendarDays, Map, Footprints } from "lucide-react";
+import { ListTodo, Heart, ChefHat, CalendarDays, Map, Footprints, UtensilsCrossed, CheckSquare } from "lucide-react";
 
 export default function Home() {
   return (
@@ -73,6 +73,26 @@ export default function Home() {
                 <Footprints className="h-4 w-4" />
               </div>
               <span className="font-medium text-xs">城市漫游</span>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/dines">
+          <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
+            <CardContent className="flex flex-col items-center gap-1 p-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-violet-100 text-violet-600">
+                <UtensilsCrossed className="h-4 w-4" />
+              </div>
+              <span className="font-medium text-xs">聚餐</span>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/todos">
+          <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
+            <CardContent className="flex flex-col items-center gap-1 p-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-cyan-100 text-cyan-600">
+                <CheckSquare className="h-4 w-4" />
+              </div>
+              <span className="font-medium text-xs">待办</span>
             </CardContent>
           </Card>
         </Link>

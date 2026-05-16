@@ -120,6 +120,31 @@ export const destinations = sqliteTable("destinations", {
   updatedAt: text("updated_at").notNull().$defaultFn(() => new Date().toISOString()),
 });
 
+export const todos = sqliteTable("todos", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  content: text("content").notNull(),
+  done: integer("done").notNull().default(0),
+  archived: integer("archived").notNull().default(0),
+  area: text("area").notNull(), // 'together' | 'personal'
+  userId: integer("user_id").references(() => users.id),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
+});
+
+export const dines = sqliteTable("dines", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  restaurant: text("restaurant").notNull(),
+  date: text("date").notNull(), // YYYY-MM-DD
+  people: text("people"),
+  dishes: text("dishes"),
+  cost: real("cost"),
+  rating: integer("rating"), // 1-5
+  comment: text("comment"),
+  imageUrl: text("image_url"),
+  creatorId: integer("creator_id").notNull().references(() => users.id),
+  createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
+});
+
 export const wanders = sqliteTable("wanders", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   location: text("location").notNull(),

@@ -29,6 +29,8 @@
 - 纪念日（农历支持 + 倒计时 + 在一起天数 + 提前提醒）
 - 旅游记录（愿望清单 + 足迹地图 + 花费记录，Leaflet 真实地图）
 - 城市漫游（时间线卡片流 + 地点聚合统计，轻量级城市漫步记录）
+- 聚餐记录（时间线卡片流 + 餐厅统计 + 星级评分）
+- 待办（共享便利贴，划掉/归档/拖拽排序，无指派无截止日期）
 - 消息中心（应用内通知，已读/未读追踪）
 - 双主题（温馨 / 黑夜，CSS 变量一键切换）
 - 管理员后台（数据增删查改、分页）
@@ -377,6 +379,33 @@
 | creator_id | integer | 创建者 |
 | created_at | text | |
 
+### dines
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | integer | 主键 |
+| restaurant | text | 餐厅名 |
+| date | text | 聚餐日期 YYYY-MM-DD |
+| people | text? | 参与人 |
+| dishes | text? | 菜品 |
+| cost | real? | 人均花费 |
+| rating | integer? | 1-5 评分 |
+| comment | text? | 点评 |
+| image_url | text? | 照片 |
+| creator_id | integer | 创建者 |
+| created_at | text | |
+
+### todos
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | integer | 主键 |
+| content | text | 待办内容 |
+| done | integer | 0/1 |
+| archived | integer | 0/1 |
+| area | text | together / personal |
+| user_id | integer? | 个人备忘所属用户 |
+| sort_order | integer | 拖拽排序序号 |
+| created_at | text | |
+
 ---
 
 ## 菜谱功能（2026-05）
@@ -447,6 +476,40 @@
 - `/wanders` — 时间线卡片流 + 🏆 最爱去的地点统计
 - `/wanders/create` — 创建记录：地点、日期、照片、一句话心情
 - `/wanders/[id]/edit` — 编辑 + 删除
+
+---
+
+## 聚餐记录功能（2026-05）
+
+### 业务规则
+- 记录跟家人朋友的聚餐：餐厅、日期、参与人、菜品、人均花费、星级评分、点评、照片
+- 时间线卡片流展示，左侧圆点+竖线样式
+- 统计：聚餐次数、总花费、人均花费、最常去餐厅排名
+
+### 数据模型
+- **dines**：restaurant, date, people, dishes, cost, rating(1-5), comment, imageUrl
+
+### 页面
+- `/dines` — 时间线卡片流 + 统计卡片
+- `/dines/create` — 创建页
+- `/dines/[id]/edit` — 编辑 + 删除
+
+---
+
+## 待办功能（2026-05）
+
+### 业务规则
+- 极简共享便利贴设计
+- 两个区域：👥 我们一起（共享）、👤 我的计划（私有）
+- 无指派、无截止日期、无提醒、无完成通知
+- 支持拖拽排序、内联编辑、划掉/恢复、归档/恢复
+
+### 数据模型
+- **todos**：content, done(0/1), archived(0/1), area(together/personal), sortOrder
+
+### 页面
+- `/todos` — 主列表：Tab切换 + 输入框 + 列表 + 归档按钮
+- `/todos/archive` — 归档页：Tab切换 + 恢复按钮
 
 ---
 

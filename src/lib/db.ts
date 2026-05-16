@@ -12,6 +12,8 @@ import {
   destinations,
   expenses,
   wanders,
+  dines,
+  todos,
 } from "@/db/schema";
 import { eq, and, or, desc, sql, count, like, gte } from "drizzle-orm";
 import { Lunar } from "lunar-javascript";
@@ -240,6 +242,89 @@ export function getExpenseSummary() {
     diff,
     whoOwes: diff === 0 ? null : `${whoOwes}多付了 ¥${diff}`,
   };
+}
+
+// ─── Todos ────────────────────────────────────────────────────────────
+
+export function getTodos(area: string, userId: number, archived: number, _pairedUserId: number | null) {
+  let q = db.select().from(todos).$dynamic();
+  if (area === "together") {
+    q = q.where(and(eq(todos.area, "together"), eq(todos.archived, archived)));
+  } else {
+    q = q.where(and(eq(todos.area, "personal"), eq(todos.userId, userId), eq(todos.archived, archived)));
+  }
+  return q.orderBy(todos.sortOrder).all();
+}
+
+export function addTodo(data: { content: string; area: string; userId?: number | null }) {
+  const maxOrder = db.select({ m: sql<number>`COALESCE(MAX(sort_order), -1)` }).from(todos).where(and(eq(todos.area, data.area), eq(todos.archived, 0))).get();
+  return db.insert(todos).values({
+    content: data.content, area: data.area,
+    userId: data.area === "personal" ? data.userId : null,
+    sortOrder: (maxOrder?.m ?? -1) + 1,
+    createdAt: new Date().toISOString(),
+  }).returning().get();
+}
+
+export function toggleTodo(id: number) {
+  const item = db.select().from(todos).where(eq(todos.id, id)).get();
+  if (!item) return null;
+  db.update(todos).set({ done: item.done ? 0 : 1 }).where(eq(todos.id, id)).run();
+  return db.select().from(todos).where(eq(todos.id, id)).get();
+}
+
+export function updateTodoContent(id: number, content: string) {
+  db.update(todos).set({ content }).where(eq(todos.id, id)).run();
+}
+
+export function archiveDone(area: string, userId: number, _pairedUserId: number | null) {
+  let q = db.update(todos).set({ archived: 1 }).$dynamic();
+  if (area === "together") {
+    q = q.where(and(eq(todos.area, "together"), eq(todos.done, 1), eq(todos.archived, 0)));
+  } else {
+    q = q.where(and(eq(todos.area, "personal"), eq(todos.userId, userId), eq(todos.done, 1), eq(todos.archived, 0)));
+  }
+  q.run();
+}
+
+export function restoreTodo(id: number) {
+  db.update(todos).set({ archived: 0 }).where(eq(todos.id, id)).run();
+}
+
+export function deleteTodo(id: number) {
+  db.delete(todos).where(eq(todos.id, id)).run();
+}
+
+export function reorderTodos(ids: number[]) {
+  ids.forEach((id, i) => {
+    db.update(todos).set({ sortOrder: i }).where(eq(todos.id, id)).run();
+  });
+}
+
+// ─── Dines ────────────────────────────────────────────────────────────
+
+export function getDines() {
+  return db.select().from(dines).orderBy(desc(dines.date)).all();
+}
+
+export function getDineById(id: number) {
+  return db.select().from(dines).where(eq(dines.id, id)).get();
+}
+
+export function getDineStats() {
+  const all = getDines();
+  const total = all.reduce((s, d) => s + (d.cost ?? 0), 0);
+  const withCost = all.filter((d) => d.cost != null);
+  const avgCost = withCost.length > 0 ? Math.round(withCost.reduce((s, d) => s + d.cost!, 0) / withCost.length) : 0;
+  const freq: Record<string, number> = {};
+  for (const d of all) {
+    freq[d.restaurant] = (freq[d.restaurant] ?? 0) + 1;
+  }
+  const topRestaurants = Object.entries(freq)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([name, count]) => ({ name, count }));
+  return { total, avgCost, topRestaurants, count: all.length };
 }
 
 // ─── Points Transactions ──────────────────────────────────────────────

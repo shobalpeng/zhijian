@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Plus, User, PenLine, Heart, ChefHat, CalendarDays, Map, Footprints } from "lucide-react";
+import { Home, Plus, User, PenLine, Heart, ChefHat, CalendarDays, Map, Footprints, UtensilsCrossed, CheckSquare } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -47,6 +47,16 @@ const createActions = [
     icon: Footprints,
     href: "/wanders/create",
   },
+  {
+    label: "聚餐",
+    icon: UtensilsCrossed,
+    href: "/dines/create",
+  },
+  {
+    label: "待办",
+    icon: CheckSquare,
+    href: "/todos",
+  },
 ];
 
 export function BottomNav() {
@@ -66,23 +76,19 @@ export function BottomNav() {
   const isInAnniversaries = pathname.startsWith("/anniversaries");
   const isInTravel = pathname.startsWith("/travel");
   const isInWanders = pathname.startsWith("/wanders");
+  const isInDines = pathname.startsWith("/dines");
+  const isInTodos = pathname.startsWith("/todos");
 
   function handlePlusClick() {
-    if (isInTasks) {
-      router.push("/tasks/create");
-    } else if (isInWishes) {
-      router.push("/wishes/create");
-    } else if (isInRecipes) {
-      router.push("/recipes/create");
-    } else if (isInAnniversaries) {
-      router.push("/anniversaries/create");
-    } else if (isInTravel) {
-      router.push("/travel/create");
-    } else if (isInWanders) {
-      router.push("/wanders/create");
-    } else {
-      setOpen(true);
-    }
+    if (isInTasks) router.push("/tasks/create");
+    else if (isInWishes) router.push("/wishes/create");
+    else if (isInRecipes) router.push("/recipes/create");
+    else if (isInAnniversaries) router.push("/anniversaries/create");
+    else if (isInTravel) router.push("/travel/create");
+    else if (isInWanders) router.push("/wanders/create");
+    else if (isInDines) router.push("/dines/create");
+    else if (isInTodos) router.push("/todos");
+    else setOpen(true);
   }
 
   function handleAction(href: string) {
@@ -102,7 +108,7 @@ export function BottomNav() {
                   onClick={handlePlusClick}
                   className={cn(
                     "flex flex-col items-center justify-center gap-0.5 w-full h-full transition-colors",
-                    (isInTasks || isInWishes || isInRecipes || isInAnniversaries || isInTravel || isInWanders)
+                    (isInTasks || isInWishes || isInRecipes || isInAnniversaries || isInTravel || isInWanders || isInDines || isInTodos)
                       ? "text-primary"
                       : "text-muted-foreground hover:text-foreground"
                   )}
