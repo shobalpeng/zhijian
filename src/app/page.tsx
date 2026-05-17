@@ -11,11 +11,17 @@ export default function Home() {
   return (
     <>
       <TopBar title="织间" showBack={false} />
-      <PointsOverview />
-      <PendingCard />
-      <ActivityTimeline />
+      <div className="animate-fade-in-up" style={{ animationDelay: "0ms" }}>
+        <PointsOverview />
+      </div>
+      <div className="animate-fade-in-up" style={{ animationDelay: "100ms" }}>
+        <PendingCard />
+      </div>
+      <div className="animate-fade-in-up" style={{ animationDelay: "200ms" }}>
+        <ActivityTimeline />
+      </div>
 
-      <div className="px-4 mt-4 grid grid-cols-3 gap-2">
+      <div className="px-4 mt-4 grid grid-cols-3 gap-2 animate-fade-in-up" style={{ animationDelay: "300ms" }}>
         <Link href="/tasks">
           <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
             <CardContent className="flex flex-col items-center gap-1 p-2.5">
@@ -108,7 +114,9 @@ export default function Home() {
         </Link>
       </div>
 
-      <FeatureCards />
+      <div className="animate-fade-in-up" style={{ animationDelay: "400ms" }}>
+        <FeatureCards />
+      </div>
     </>
   );
 }

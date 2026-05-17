@@ -7,11 +7,36 @@ interface PointsData {
   partnerPoints: number;
 }
 
+function useCountUp(target: number, start: boolean, duration = 800) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (!start || target <= 0) {
+      setValue(target);
+      return;
+    }
+    let frame: number;
+    const startTime = performance.now();
+    function tick(now: number) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      setValue(Math.round(eased * target));
+      if (progress < 1) frame = requestAnimationFrame(tick);
+    }
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [target, start, duration]);
+  return value;
+}
+
 export function PointsOverview() {
   const [data, setData] = useState<PointsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [togetherDays, setTogetherDays] = useState<number | null>(null);
+
+  const displayMy = useCountUp(data?.myPoints ?? 0, mounted);
+  const displayPartner = useCountUp(data?.partnerPoints ?? 0, mounted);
 
   useEffect(() => {
     let cancelled = false;
@@ -24,7 +49,7 @@ export function PointsOverview() {
         if (!cancelled) {
           setData(d);
           setLoading(false);
-          setTimeout(() => setMounted(true), 50);
+          setTimeout(() => setMounted(true), 80);
         }
       })
       .catch(() => {
@@ -77,8 +102,6 @@ export function PointsOverview() {
 
   if (!data) return null;
 
-  const { myPoints, partnerPoints } = data;
-
   return (
     <div className="px-4 py-4">
       <div className="rounded-xl bg-card ring-1 ring-foreground/10 p-4">
@@ -86,7 +109,7 @@ export function PointsOverview() {
           <div className="flex flex-col items-center">
             <span className="text-sm text-muted-foreground">我</span>
             <span className={`text-3xl font-bold text-primary tabular-nums transition-all duration-500 ${mounted ? "scale-100" : "scale-90 opacity-0"}`}>
-              {myPoints}
+              {displayMy}
             </span>
             <span className="text-xs text-muted-foreground">积分</span>
           </div>
@@ -94,7 +117,7 @@ export function PointsOverview() {
           <div className="flex flex-col items-center">
             <span className="text-sm text-muted-foreground">Ta</span>
             <span className={`text-3xl font-bold text-secondary-foreground tabular-nums transition-all duration-500 delay-150 ${mounted ? "scale-100" : "scale-90 opacity-0"}`}>
-              {partnerPoints}
+              {displayPartner}
             </span>
             <span className="text-xs text-muted-foreground">积分</span>
           </div>
