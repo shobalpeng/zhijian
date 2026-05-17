@@ -68,7 +68,7 @@ export function ActivityTimeline() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs leading-relaxed">
-                <span className="text-muted-foreground">距离{upcoming.name}还剩</span>
+                <span className="text-muted-foreground">距离下一次{upcoming.name}还剩</span>
                 <span className="font-bold text-blue-600">
                   {" "}{upcoming.daysUntil === 0 ? "0天，就是今天！" : `${upcoming.daysUntil}天`}
                 </span>

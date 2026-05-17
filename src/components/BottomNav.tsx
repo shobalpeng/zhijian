@@ -147,7 +147,7 @@ export function BottomNav() {
       </nav>
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="bottom" className="gap-0 px-4 pb-4 border-none bg-transparent shadow-none max-w-sm mx-auto rounded-t-2xl">
+        <SheetContent side="bottom" showCloseButton={false} className="gap-0 px-4 pb-4 border-none bg-transparent shadow-none max-w-sm mx-auto rounded-t-2xl">
           {/* Grid of small cards */}
           <div className="grid grid-cols-4 gap-3">
             {createActions.map((action) => (
