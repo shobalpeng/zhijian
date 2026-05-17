@@ -4,6 +4,7 @@ import { CalendarDays } from "lucide-react";
 interface ItemCardProps { id: number; name: string; date: string; price: number; category?: string | null; status?: string | null; retiredDate?: string | null; imageUrl?: string | null; }
 
 const catIcons: Record<string, string> = { "电子": "📱","家居":"🏠","户外":"⛺","服饰":"👗","其他":"📦" };
+const catBars: Record<string, string> = { "电子": "border-l-blue-500","家居":"border-l-amber-500","户外":"border-l-emerald-500","服饰":"border-l-pink-500","其他":"border-l-muted-foreground/30" };
 
 export function ItemCard({ id, name, date, price, category, status, retiredDate, imageUrl }: ItemCardProps) {
   const endDate = status === "retired" && retiredDate ? new Date(retiredDate + "T00:00:00") : new Date();
@@ -11,7 +12,7 @@ export function ItemCard({ id, name, date, price, category, status, retiredDate,
   const dailyCost = price / days;
 
   return (
-    <Link href={`/items/${id}/edit`} className="flex gap-3 rounded-xl bg-card ring-1 ring-foreground/10 p-3 hover:bg-muted/30 transition-colors">
+    <Link href={`/items/${id}/edit`} className={`flex gap-3 rounded-xl bg-card border-l-4 ${catBars[category ?? "其他"]} p-3 hover:bg-muted/30 transition-colors`}>
       <div className="h-16 w-16 shrink-0 rounded-lg bg-muted overflow-hidden flex items-center justify-center text-2xl">
         {imageUrl ? <img src={imageUrl} alt="" className="w-full h-full object-cover" /> : (catIcons[category ?? ""] ?? "📦")}
       </div>

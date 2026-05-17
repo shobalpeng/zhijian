@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { Star } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Star, ChefHat } from "lucide-react";
 
 interface RecipeCardProps {
   id: number;
@@ -30,33 +29,42 @@ export function RecipeCard({ id, title, imageUrl, cookCount, avgRating, lastCook
   return (
     <Link
       href={`/recipes/${id}`}
-      className="flex gap-3 rounded-xl bg-card ring-1 ring-foreground/10 p-3 hover:bg-muted/30 transition-colors"
+      className="block rounded-xl bg-card ring-1 ring-foreground/10 overflow-hidden hover:ring-foreground/30 hover:shadow-md transition-all group"
     >
-      {/* Thumbnail */}
-      <div className="h-20 w-20 shrink-0 rounded-lg bg-muted overflow-hidden">
+      {/* Cover image */}
+      <div className="relative h-32 bg-muted overflow-hidden">
         {imageUrl ? (
-          <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+          <img src={imageUrl} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-2xl text-muted-foreground">
+          <div className="flex h-full w-full items-center justify-center text-5xl text-muted-foreground/40">
             🍳
           </div>
         )}
-      </div>
+        {/* Gradient overlay at bottom */}
+        {imageUrl && (
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/60 to-transparent" />
+        )}
 
-      {/* Info */}
-      <div className="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
-        <h3 className="text-sm font-medium truncate">{title}</h3>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span>已做 {cookCount} 次</span>
+        {/* Floating badges at top-right */}
+        <div className="absolute top-2 right-2 flex items-center gap-1.5">
+          <span className="inline-flex items-center gap-1 rounded-full bg-background/80 backdrop-blur px-2 py-0.5 text-xs font-medium text-foreground">
+            <ChefHat className="h-3 w-3" />
+            {cookCount}次
+          </span>
           {avgRating != null && (
-            <span className="inline-flex items-center gap-0.5 text-amber-500">
+            <span className="inline-flex items-center gap-0.5 rounded-full bg-background/80 backdrop-blur px-2 py-0.5 text-xs font-medium text-amber-600">
               <Star className="h-3 w-3 fill-amber-500" />
               {avgRating}
             </span>
           )}
         </div>
+      </div>
+
+      {/* Info below image */}
+      <div className="p-3">
+        <h3 className="text-sm font-medium truncate">{title}</h3>
         {lastCookedAt && (
-          <p className="text-xs text-muted-foreground/70">{relativeTime(lastCookedAt)}做过</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{relativeTime(lastCookedAt)}做过</p>
         )}
       </div>
     </Link>

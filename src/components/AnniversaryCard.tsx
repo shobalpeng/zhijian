@@ -70,18 +70,21 @@ export function AnniversaryCard({ id, name, date, note, isLunar, isTogether }: A
           <p className="text-xs text-muted-foreground mt-0.5">{date}</p>
           {note && <p className="text-xs text-muted-foreground/70 mt-0.5 truncate">{note}</p>}
         </div>
-        <div className="shrink-0">
-          <span
-            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-              isToday
-                ? "bg-success/10 text-success dark:text-green-400"
-                : text.startsWith("还有")
-                ? "bg-info/10 text-info dark:text-blue-400"
-                : "bg-muted text-muted-foreground"
-            }`}
-          >
-            {text}
-          </span>
+        <div className="shrink-0 text-right">
+          {isToday ? (
+            <span className="inline-flex items-center rounded-full bg-success/10 text-success dark:text-green-400 px-3 py-1.5 text-sm font-bold font-heading animate-heartbeat">
+              {text}
+            </span>
+          ) : (
+            <div className="flex flex-col items-center">
+              <span className={`text-lg font-bold font-heading tabular-nums leading-none ${text.startsWith("还有") ? "text-info dark:text-blue-400" : "text-muted-foreground"}`}>
+                {text.replace(/[^0-9]/g, "")}
+              </span>
+              <span className={`text-xs font-medium ${text.startsWith("还有") ? "text-info/70 dark:text-blue-400/70" : "text-muted-foreground/70"}`}>
+                {text.startsWith("还有") ? "天" : "天前"}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </Link>
