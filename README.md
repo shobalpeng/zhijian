@@ -49,6 +49,15 @@ npm run build
 npm start
 ```
 
+### Docker 部署
+
+详见 [docker/README.md](docker/README.md)。
+
+```bash
+cd docker
+docker compose up -d --build
+```
+
 数据库文件和上传的图片都在 `data/` 目录下，备份只需复制该文件夹。
 
 ### 设置管理员

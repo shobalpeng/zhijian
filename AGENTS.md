@@ -356,6 +356,12 @@ export default function Page() {
 - 创建/编辑成功后用 `router.replace()` 而非 `router.push()`，避免中间页面留在浏览器历史中
 - 缓存数据用 `useCallback` 包裹 fetch 函数，避免 useEffect 死循环
 
+### 11. Docker 部署
+- `iron-session` cookie 在 HTTP 环境下需设置 `secure: false`（生产环境 Docker 默认 `SESSION_SECURE` 为 `"true"` 才启用 secure）
+- `next build` 会预渲染页面并访问数据库，多 worker 并发锁冲突 → `layout.tsx` 设置 `export const dynamic = "force-dynamic"` 跳过
+- `db/index.ts` 模块初始化重试 `SQLITE_BUSY` 保护并发连接
+- SESSION_SECRET 需要 ≥32 字符，在 `docker-compose.yml` 中显式设置
+
 ---
 
 ## 页面布局规范

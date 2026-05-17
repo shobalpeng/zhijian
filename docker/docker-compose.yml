@@ -1,0 +1,11 @@
+services:
+  app:
+    build: .
+    container_name: zhijian
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - SESSION_SECRET=zhijian-prod-session-secret-at-least-32-chars-long
+    restart: unless-stopped
