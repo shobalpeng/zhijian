@@ -3,13 +3,15 @@ import { db } from "@/db";
 import { destinations } from "@/db/schema";
 import { getDestinations } from "@/lib/db";
 
-export async function GET() {
+export async function GET(request: Request) {
   const session = await getSession();
   if (!session.userId) {
     return Response.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const list = getDestinations();
+  const { searchParams } = new URL(request.url);
+  const search = searchParams.get("search");
+  const list = getDestinations(search);
   return Response.json({ destinations: list });
 }
 

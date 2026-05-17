@@ -7,6 +7,8 @@ import { WishCard } from "@/components/WishCard";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/Skeleton";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -46,6 +48,13 @@ function WishesContent() {
   const [partnerWishes, setPartnerWishes] = useState<Wish[]>([]);
   const [userId, setUserId] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const [role, setRoleState] = useState(searchParams.get("role") || "mine");
   const [status, setStatusState] = useState(searchParams.get("status") || "all");
@@ -55,10 +64,11 @@ function WishesContent() {
 
   async function loadWishes() {
     setLoading(true);
+    const searchParam = debouncedSearch ? `?search=${encodeURIComponent(debouncedSearch)}` : "";
     try {
       const [meRes, wishesRes] = await Promise.all([
         fetch("/api/auth/me"),
-        fetch("/api/wishes"),
+        fetch(`/api/wishes${searchParam}`),
       ]);
       const me = await meRes.json();
       setUserId(me.userId);
@@ -74,7 +84,7 @@ function WishesContent() {
     }
   }
 
-  useEffect(() => { loadWishes(); }, []);
+  useEffect(() => { loadWishes(); }, [debouncedSearch]);
 
   const filtered = useMemo(() => {
     const source = role === "all" ? [...myWishes, ...partnerWishes] : role === "mine" ? myWishes : partnerWishes;
@@ -86,6 +96,14 @@ function WishesContent() {
       <TopBar title="心愿" />
 
       <PullToRefresh onRefresh={loadWishes}>
+      {/* Search */}
+      <div className="px-4 pt-3">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="搜索心愿..." className="pl-9" />
+        </div>
+      </div>
+
       {/* Filters */}
       <div className="flex gap-2 px-4 py-3">
         <Select value={role} onValueChange={(v) => v && setRole(v)}>
@@ -124,7 +142,7 @@ function WishesContent() {
         {loading ? (
           <Skeleton className="h-[72px]" count={3} />
         ) : filtered.length === 0 ? (
-          <EmptyState icon="💝" title="还没有心愿" description="发布一个心愿，让Ta来实现吧" />
+          <EmptyState icon="💝" title={debouncedSearch ? "没有找到匹配的心愿" : "还没有心愿"} description={debouncedSearch ? "换个关键词试试" : "发布一个心愿，让Ta来实现吧"} />
         ) : (
           <div className="space-y-3">
             {filtered.map((wish) => (

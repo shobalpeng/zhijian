@@ -10,7 +10,8 @@ import { ExpenseList } from "@/components/ExpenseList";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/Skeleton";
-import { Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Plus, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getExpenseSummary } from "@/lib/db";
 
@@ -58,11 +59,19 @@ function TravelContent() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [summary, setSummary] = useState<ReturnType<typeof getExpenseSummary> | null>(null);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const load = useCallback(async () => {
+    const searchParam = debouncedSearch ? `?search=${encodeURIComponent(debouncedSearch)}` : "";
     try {
       const [destRes, expRes] = await Promise.all([
-        fetch("/api/travel"),
+        fetch(`/api/travel${searchParam}`),
         fetch("/api/travel/expenses/all"),
       ]);
       if (destRes.ok) {
@@ -79,7 +88,7 @@ function TravelContent() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [debouncedSearch]);
 
   useEffect(() => {
     load();
@@ -90,6 +99,14 @@ function TravelContent() {
   return (
     <>
       <TopBar title="旅游" showBell={false} />
+
+      {/* Search */}
+      <div className="px-4 pt-3">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="搜索目的地..." className="pl-9" />
+        </div>
+      </div>
 
       {/* Tabs */}
       <div className="flex gap-1 px-4 py-3">
@@ -139,7 +156,7 @@ function TravelContent() {
                   </button>
                   {wishlist.length === 0 && destinations.length === 0 && (
                     <div className="col-span-2">
-                      <EmptyState icon="🧭" title="还没有目的地" description="添加你想去的地方吧" />
+                      <EmptyState icon="🧭" title={debouncedSearch ? "没有找到匹配的目的地" : "还没有目的地"} description={debouncedSearch ? "换个关键词试试" : "添加你想去的地方吧"} />
                     </div>
                   )}
                 </div>

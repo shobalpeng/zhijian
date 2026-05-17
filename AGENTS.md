@@ -378,6 +378,55 @@ TopBar (标题 + 返回箭头 + 消息铃铛)
 - 首页: `showBack={false}` (无返回箭头)
 - 子页面: `showBack={true}` (默认，有返回箭头调用 `router.back()`)
 - 创建/编辑页: `showBell={false}` (无消息铃铛)
+- 搜索框: 列表页统一在筛选项上方，`px-4 pt-3` + `pl-9`（Seach 图标在左）。搜索模式见下文"搜索模式"。
+
+---
+
+## 搜索模式
+
+5 个列表页（任务/心愿/旅游/漫游/聚餐）实现了搜索，以菜谱为模板。三层结构：
+
+```
+DB 层 (src/lib/db.ts)          →  API 层 (route.ts)          →  页面层 (page.tsx)
+$dynamic() + like() + or()        searchParams.get("search")     Input + 300ms debounce + useCallback
+```
+
+### DB 层
+```typescript
+export function getXxx(search?: string | null) {
+  let q = db.select().from(xxx).$dynamic();
+  if (search) q = q.where(like(xxx.field, `%${search}%`));
+  // 多字段搜索用 or():
+  // if (search) q = q.where(or(like(xxx.a, `%${search}%`), like(xxx.b, `%${search}%`)));
+  return q.orderBy(desc(xxx.createdAt)).all();
+}
+```
+
+### API 层
+```typescript
+export async function GET(request: Request) {
+  // ...
+  const { searchParams } = new URL(request.url);
+  const search = searchParams.get("search");
+  const list = getXxx(search);
+  return Response.json({ xxx: list });
+}
+```
+
+### 页面层
+```tsx
+const [search, setSearch] = useState("");
+const [debouncedSearch, setDebouncedSearch] = useState("");
+useEffect(() => { const t = setTimeout(() => setDebouncedSearch(search), 300); return () => clearTimeout(t); }, [search]);
+
+const load = useCallback(async () => {
+  const p = debouncedSearch ? `?search=${encodeURIComponent(debouncedSearch)}` : "";
+  const res = await fetch(`/api/xxx${p}`);
+  // ...
+}, [debouncedSearch]);
+```
+
+UI：筛选区上方 `<Input className="pl-9" />` 嵌 `<Search>` 图标。空状态区分搜索失败 vs 无数据。
 
 ---
 
@@ -422,7 +471,42 @@ TopBar (标题 + 返回箭头 + 消息铃铛)
 
 ## 首页导航卡片
 
-首页使用 3 列网格 (`grid-cols-3 gap-2`)：
+首页使用 4 列正方形网格 (`grid-cols-4 gap-2 aspect-square`)：
 任务 → 心愿 → 菜谱 → 纪念日 → 旅游 → 城市漫游 → 聚餐 → 待办 → 日均成本
 
-新增功能时：加页面 + 加 API + 加 nav 卡片 + 加 BottomNav 入口 + 更新 FeatureCards（如从占位移除）。
+新增功能时：加页面 + 加 API + 加 nav 卡片 + 加 BottomNav 入口。
+
+---
+
+## 当前状态 (v1.0)
+
+### 已完成功能 (10 个模块)
+- 任务/心愿：发布 → 提交 → 确认流程，积分系统，筛选 + 搜索
+- 菜谱：菜谱库 + 做菜记录 + 评分 + 3 种排序 + 搜索
+- 纪念日：农历支持 + 倒计时 + 在一起天数 + 7 天提醒
+- 旅游：愿望清单 + Leaflet 足迹地图 + 花费记录 + 搜索
+- 城市漫游：时间线卡片 + 地点统计 + 搜索
+- 聚餐：时间线卡片 + 餐厅统计 + 搜索（餐厅名 + 参与人）
+- 日均成本：购买日起日均计算 + 服役中/已退役筛选
+- 待办：双区拖拽排序 + 划掉/归档
+- 通知：任务/心愿状态 + 纪念日提醒
+- 双主题（warm/dark）+ 渐变背景 + 微噪点纹理
+
+### UI 特性
+- 首页交错入场动画 + 积分数字跳动
+- 5 种差异化卡片（左侧状态条/大图/心跳/分类色条）
+- ZCOOL XiaoWei 标题字体
+- 语义颜色 Token（success/warning/info）
+- 共享 EmptyState / Skeleton / PullToRefresh / apiFetch
+
+### 技术债务
+- `db/index.ts` 模块初始化有 SQLITE_BUSY 重试，生产无问题
+- 部分 API 路由未对参数做严格校验
+- 无自动化测试
+
+### 可探索方向
+- 全站 i18n/英文支持
+- 数据导出/导入
+- 更多统计图表
+- PWA 离线支持
+- 第三方登录

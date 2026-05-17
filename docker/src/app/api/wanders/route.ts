@@ -3,13 +3,15 @@ import { db } from "@/db";
 import { wanders } from "@/db/schema";
 import { getWanders, getWanderStats } from "@/lib/db";
 
-export async function GET() {
+export async function GET(request: Request) {
   const session = await getSession();
   if (!session.userId) {
     return Response.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const list = getWanders();
+  const { searchParams } = new URL(request.url);
+  const search = searchParams.get("search");
+  const list = getWanders(search);
   const stats = getWanderStats();
   return Response.json({ wanders: list, stats });
 }

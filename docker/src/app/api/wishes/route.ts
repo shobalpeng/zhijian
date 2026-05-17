@@ -3,16 +3,19 @@ import { db } from "@/db";
 import { wishes } from "@/db/schema";
 import { getWishesForUser, createNotification } from "@/lib/db";
 
-export async function GET() {
+export async function GET(request: Request) {
   const session = await getSession();
   if (!session.userId) {
     return Response.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const myWishes = getWishesForUser(session.userId);
+  const { searchParams } = new URL(request.url);
+  const search = searchParams.get("search");
+
+  const myWishes = getWishesForUser(session.userId, search);
 
   const partnerWishes = session.pairedUserId
-    ? getWishesForUser(session.pairedUserId)
+    ? getWishesForUser(session.pairedUserId, search)
     : [];
 
   return Response.json({ myWishes, partnerWishes });

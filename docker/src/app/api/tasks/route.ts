@@ -12,13 +12,14 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const type = searchParams.get("type") ?? "assigned";
+  const search = searchParams.get("search");
 
   if (type === "created") {
-    const list = getTasksCreatedByUser(session.userId);
+    const list = getTasksCreatedByUser(session.userId, search);
     return Response.json({ tasks: list });
   }
 
-  const list = getTasksForUser(session.userId);
+  const list = getTasksForUser(session.userId, search);
   return Response.json({ tasks: list });
 }
 

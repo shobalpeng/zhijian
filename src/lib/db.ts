@@ -63,22 +63,16 @@ export function getUserSettings(userId: number) {
 
 // ─── Tasks ────────────────────────────────────────────────────────────
 
-export function getTasksForUser(userId: number) {
-  return db
-    .select()
-    .from(tasks)
-    .where(eq(tasks.assigneeId, userId))
-    .orderBy(desc(tasks.updatedAt))
-    .all();
+export function getTasksForUser(userId: number, search?: string | null) {
+  let q = db.select().from(tasks).where(eq(tasks.assigneeId, userId)).$dynamic();
+  if (search) q = q.where(like(tasks.title, `%${search}%`));
+  return q.orderBy(desc(tasks.updatedAt)).all();
 }
 
-export function getTasksCreatedByUser(userId: number) {
-  return db
-    .select()
-    .from(tasks)
-    .where(eq(tasks.creatorId, userId))
-    .orderBy(desc(tasks.updatedAt))
-    .all();
+export function getTasksCreatedByUser(userId: number, search?: string | null) {
+  let q = db.select().from(tasks).where(eq(tasks.creatorId, userId)).$dynamic();
+  if (search) q = q.where(like(tasks.title, `%${search}%`));
+  return q.orderBy(desc(tasks.updatedAt)).all();
 }
 
 export function getTaskById(taskId: number) {
@@ -87,13 +81,10 @@ export function getTaskById(taskId: number) {
 
 // ─── Wishes ───────────────────────────────────────────────────────────
 
-export function getWishesForUser(userId: number) {
-  return db
-    .select()
-    .from(wishes)
-    .where(eq(wishes.creatorId, userId))
-    .orderBy(desc(wishes.updatedAt))
-    .all();
+export function getWishesForUser(userId: number, search?: string | null) {
+  let q = db.select().from(wishes).where(eq(wishes.creatorId, userId)).$dynamic();
+  if (search) q = q.where(like(wishes.title, `%${search}%`));
+  return q.orderBy(desc(wishes.updatedAt)).all();
 }
 
 export function getWishById(wishId: number) {
@@ -174,8 +165,10 @@ export function createNotification(data: {
 
 // ─── Travel ────────────────────────────────────────────────────────────
 
-export function getDestinations() {
-  return db.select().from(destinations).orderBy(desc(destinations.updatedAt)).all();
+export function getDestinations(search?: string | null) {
+  let q = db.select().from(destinations).$dynamic();
+  if (search) q = q.where(like(destinations.name, `%${search}%`));
+  return q.orderBy(desc(destinations.updatedAt)).all();
 }
 
 export function getDestinationById(id: number) {
@@ -184,8 +177,10 @@ export function getDestinationById(id: number) {
 
 // ─── Wanders ──────────────────────────────────────────────────────────
 
-export function getWanders() {
-  return db.select().from(wanders).orderBy(desc(wanders.date)).all();
+export function getWanders(search?: string | null) {
+  let q = db.select().from(wanders).$dynamic();
+  if (search) q = q.where(like(wanders.location, `%${search}%`));
+  return q.orderBy(desc(wanders.date)).all();
 }
 
 export function getWanderById(id: number) {
@@ -316,8 +311,10 @@ export function getItemById(id: number) {
 
 // ─── Dines ────────────────────────────────────────────────────────────
 
-export function getDines() {
-  return db.select().from(dines).orderBy(desc(dines.date)).all();
+export function getDines(search?: string | null) {
+  let q = db.select().from(dines).$dynamic();
+  if (search) q = q.where(or(like(dines.restaurant, `%${search}%`), like(dines.people, `%${search}%`)));
+  return q.orderBy(desc(dines.date)).all();
 }
 
 export function getDineById(id: number) {
