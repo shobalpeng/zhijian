@@ -56,11 +56,12 @@ function WishesContent() {
     return () => clearTimeout(timer);
   }, [search]);
 
-  const [role, setRoleState] = useState(searchParams.get("role") || "mine");
-  const [status, setStatusState] = useState(searchParams.get("status") || "all");
+  // Filters — URL params first, then localStorage fallback
+  const role = searchParams.get("role") || (typeof window !== "undefined" && localStorage.getItem("wishes-role")) || "mine";
+  const status = searchParams.get("status") || (typeof window !== "undefined" && localStorage.getItem("wishes-status")) || "all";
 
-  function setRole(v: string) { setRoleState(v); const p = new URLSearchParams(searchParams.toString()); p.set("role", v); router.replace(`/wishes?${p.toString()}`, { scroll: false }); }
-  function setStatus(v: string) { setStatusState(v); const p = new URLSearchParams(searchParams.toString()); p.set("status", v); router.replace(`/wishes?${p.toString()}`, { scroll: false }); }
+  function setRole(v: string) { localStorage.setItem("wishes-role", v); const p = new URLSearchParams(searchParams.toString()); p.set("role", v); router.replace(`/wishes?${p.toString()}`, { scroll: false }); }
+  function setStatus(v: string) { localStorage.setItem("wishes-status", v); const p = new URLSearchParams(searchParams.toString()); p.set("status", v); router.replace(`/wishes?${p.toString()}`, { scroll: false }); }
 
   async function loadWishes() {
     setLoading(true);

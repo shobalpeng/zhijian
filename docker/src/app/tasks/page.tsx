@@ -54,18 +54,18 @@ function TasksContent() {
     return () => clearTimeout(timer);
   }, [search]);
 
-  // Filters — read from URL params
-  const [role, setRoleState] = useState(searchParams.get("role") || "assigned");
-  const [status, setStatusState] = useState(searchParams.get("status") || "all");
+  // Filters — URL params first, then localStorage fallback
+  const role = searchParams.get("role") || (typeof window !== "undefined" && localStorage.getItem("tasks-role")) || "assigned";
+  const status = searchParams.get("status") || (typeof window !== "undefined" && localStorage.getItem("tasks-status")) || "all";
 
   function setRole(v: string) {
-    setRoleState(v);
+    localStorage.setItem("tasks-role", v);
     const params = new URLSearchParams(searchParams.toString());
     params.set("role", v);
     router.replace(`/tasks?${params.toString()}`, { scroll: false });
   }
   function setStatus(v: string) {
-    setStatusState(v);
+    localStorage.setItem("tasks-status", v);
     const params = new URLSearchParams(searchParams.toString());
     params.set("status", v);
     router.replace(`/tasks?${params.toString()}`, { scroll: false });
