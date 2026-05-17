@@ -2,7 +2,7 @@ import Link from "next/link";
 import { TopBar } from "@/components/TopBar";
 import { PointsOverview } from "@/components/PointsOverview";
 import { PendingCard } from "@/components/PendingCard";
-import { FeatureCards } from "@/components/FeatureCards";
+
 import { ActivityTimeline } from "@/components/ActivityTimeline";
 import { Card, CardContent } from "@/components/ui/card";
 import { ListTodo, Heart, ChefHat, CalendarDays, Map, Footprints, UtensilsCrossed, CheckSquare, Calculator } from "lucide-react";
@@ -21,7 +21,7 @@ export default function Home() {
         <ActivityTimeline />
       </div>
 
-      <div className="px-4 mt-4 grid grid-cols-3 gap-2 animate-fade-in-up" style={{ animationDelay: "300ms" }}>
+      <div className="px-4 mt-4 grid grid-cols-4 gap-2 animate-fade-in-up" style={{ animationDelay: "300ms" }}>
         <Link href="/tasks">
           <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
             <CardContent className="flex flex-col items-center gap-1 p-2.5">
@@ -112,10 +112,6 @@ export default function Home() {
             </CardContent>
           </Card>
         </Link>
-      </div>
-
-      <div className="animate-fade-in-up" style={{ animationDelay: "400ms" }}>
-        <FeatureCards />
       </div>
     </>
   );
