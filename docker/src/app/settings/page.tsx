@@ -27,25 +27,6 @@ export default function SettingsPage() {
   const [editingCap, setEditingCap] = useState(false);
   const [capValue, setCapValue] = useState("");
   const [savingCap, setSavingCap] = useState(false);
-  const [pwForm, setPwForm] = useState({ current: "", newPw: "" });
-  const [savingPw, setSavingPw] = useState(false);
-  const [showPwForm, setShowPwForm] = useState(false);
-
-  async function handleChangePw() {
-    setSavingPw(true);
-    try {
-      const res = await fetch("/api/auth/change-password", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currentPassword: pwForm.current, newPassword: pwForm.newPw }),
-      });
-      const data = await res.json();
-      if (!res.ok) { toast.error(data.error ?? "修改失败"); return; }
-      toast.success("密码已修改");
-      setShowPwForm(false);
-      setPwForm({ current: "", newPw: "" });
-    } catch { toast.error("修改失败"); }
-    finally { setSavingPw(false); }
-  }
 
   useEffect(() => {
     let cancelled = false;
@@ -130,7 +111,7 @@ export default function SettingsPage() {
       <TopBar title="我的" showBell={false} />
       <div className="px-4 py-6 space-y-4">
         {/* User info card */}
-        <div className="rounded-xl bg-card ring-1 ring-foreground/10 p-4">
+        <Link href="/settings/profile" className="block rounded-xl bg-card ring-1 ring-foreground/10 p-4 hover:bg-muted/30 transition-colors">
           <div className="flex items-center gap-4">
             <div className="flex items-center justify-center h-14 w-14 rounded-full bg-primary/10 text-primary text-xl font-bold">
               {data?.username?.charAt(0)?.toUpperCase() ?? "?"}
@@ -142,20 +123,9 @@ export default function SettingsPage() {
                 {data?.pairedUsername ? ` - ${data.pairedUsername}` : ""}
               </p>
             </div>
+            <svg className="h-4 w-4 text-muted-foreground shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 5l7 7-7 7" /></svg>
           </div>
-          {showPwForm ? (
-            <div className="mt-3 pt-3 border-t border-border flex flex-col gap-2">
-              <Input type="password" value={pwForm.current} onChange={e => setPwForm(f => ({ ...f, current: e.target.value }))} placeholder="当前密码" className="h-8 text-sm" />
-              <Input type="password" value={pwForm.newPw} onChange={e => setPwForm(f => ({ ...f, newPw: e.target.value }))} placeholder="新密码（至少4位）" className="h-8 text-sm" />
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" className="flex-1" onClick={() => { setShowPwForm(false); setPwForm({ current: "", newPw: "" }); }}>取消</Button>
-                <Button size="sm" className="flex-1" onClick={handleChangePw} disabled={savingPw || !pwForm.current || !pwForm.newPw || pwForm.newPw.length < 4}>{savingPw ? "修改中..." : "确认修改"}</Button>
-              </div>
-            </div>
-          ) : (
-            <button onClick={() => setShowPwForm(true)} className="mt-2 text-xs text-muted-foreground hover:text-foreground transition-colors">修改密码</button>
-          )}
-        </div>
+        </Link>
 
         {/* Pairing management */}
         <Link
