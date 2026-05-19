@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { TopBar } from "@/components/TopBar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/Skeleton";
@@ -20,6 +19,12 @@ export default function TodosPage() {
   const [newText, setNewText] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editText, setEditText] = useState("");
+  const editRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const el = editRef.current;
+    if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
+  }, [editText]);
   const dragItem = useRef<number | null>(null);
   const dragOver = useRef<number | null>(null);
 
@@ -99,10 +104,15 @@ export default function TodosPage() {
         ) : (
           <>
             {/* Add input */}
-            <div className="flex gap-2 mb-3">
-              <Input className="flex-1" placeholder="+ 添加待办..." value={newText}
-                onChange={e => setNewText(e.target.value)}
-                onKeyDown={e => { if (e.key === "Enter") handleAdd(); }} />
+            <div className="flex gap-2 mb-3 items-end">
+              <textarea
+                className="flex-1 rounded-lg border border-input bg-transparent px-3 py-1.5 text-sm placeholder:text-muted-foreground resize-none overflow-hidden [field-sizing:content]"
+                placeholder="+ 添加待办..."
+                value={newText}
+                onChange={e => { setNewText(e.target.value); }}
+                rows={1}
+                style={{ minHeight: '2.5rem' }}
+              />
               <Button size="sm" onClick={handleAdd} disabled={!newText.trim()}>添加</Button>
             </div>
 
@@ -117,7 +127,12 @@ export default function TodosPage() {
                     {todo.done === 1 && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M5 13l4 4L19 7" /></svg>}
                   </button>
                   {editingId === todo.id ? (
-                    <Input className="flex-1 h-7 text-sm" value={editText} onChange={e => setEditText(e.target.value)} onKeyDown={e => { if(e.key==="Enter") handleEdit(todo.id); if(e.key==="Escape") setEditingId(null); }} onBlur={() => setEditingId(null)} autoFocus />
+                    <textarea ref={editRef}
+                      className="flex-1 rounded border border-input bg-transparent px-2 py-1 text-sm resize-none overflow-hidden"
+                      value={editText} onChange={e => { setEditText(e.target.value); }}
+                      onKeyDown={e => { if(e.key==="Enter" && !e.shiftKey) { e.preventDefault(); handleEdit(todo.id); } if(e.key==="Escape") setEditingId(null); }}
+                      onBlur={() => setEditingId(null)} autoFocus rows={1}
+                      style={{ minHeight: '1.75rem', fieldSizing: 'fixed' } as React.CSSProperties} />
                   ) : (
                     <span onClick={() => { setEditingId(todo.id); setEditText(todo.content); }}
                       className={cn("flex-1 text-sm cursor-text", todo.done && "line-through text-muted-foreground/50")}>

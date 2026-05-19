@@ -55,7 +55,7 @@ export default function EditDinePage() {
         <div className="space-y-2"><Label htmlFor="di">菜品</Label><Input id="di" value={dishes} onChange={e => setDishes(e.target.value)} /></div>
         <div className="space-y-2"><Label htmlFor="c">人均花费（元）</Label><Input id="c" type="number" value={cost} onChange={e => setCost(e.target.value)} /></div>
         <div className="space-y-2"><Label>味道评分</Label><div className="flex gap-1">{[1,2,3,4,5].map(s => (<button key={s} type="button" onClick={() => setRating(rating===s?null:s)} className={cn("p-1", s<=(rating??0)?"text-amber-400":"text-muted-foreground/30")}><Star className={cn("h-6 w-6", s<=(rating??0)&&"fill-amber-400")} /></button>))}</div></div>
-        <div className="space-y-2"><Label htmlFor="co">一句话点评</Label><Input id="co" value={comment} onChange={e => setComment(e.target.value)} maxLength={100} /><p className="text-xs text-muted-foreground text-right">{comment.length}/100</p></div>
+        <div className="space-y-2"><Label htmlFor="co">点评</Label><textarea id="co" value={comment} onChange={e => setComment(e.target.value)} rows={1} className="w-full rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-sm placeholder:text-muted-foreground resize-none overflow-hidden [field-sizing:content]" style={{ minHeight: '2.5rem' }} /></div>
         <div className="mt-auto pt-4 space-y-3"><Button type="submit" disabled={submitting||!restaurant.trim()||!date} className="w-full">{submitting?"保存中...":"保存修改"}</Button><Button type="button" variant="destructive" className="w-full" onClick={handleDelete}>删除记录</Button></div>
       </form>
     </div>

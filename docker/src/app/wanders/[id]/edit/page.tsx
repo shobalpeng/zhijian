@@ -98,9 +98,8 @@ export default function EditWanderPage() {
           )}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="mood">一句话心情（可选）</Label>
-          <Input id="mood" value={mood} onChange={(e) => setMood(e.target.value)} placeholder="今天天气真好" maxLength={100} />
-          <p className="text-xs text-muted-foreground text-right">{mood.length}/100</p>
+          <Label htmlFor="mood">心情</Label>
+          <textarea id="mood" value={mood} onChange={(e) => setMood(e.target.value)} placeholder="今天天气真好" rows={1} className="w-full rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-sm placeholder:text-muted-foreground resize-none overflow-hidden [field-sizing:content]" style={{ minHeight: '2.5rem' }} />
         </div>
         <div className="mt-auto pt-4 space-y-3">
           <Button type="submit" disabled={submitting || !location.trim() || !date} className="w-full">

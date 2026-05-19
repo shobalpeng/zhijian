@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import { TopBar } from "@/components/TopBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ImageUpload } from "@/components/ImageUpload";
 import { cn } from "@/lib/utils";
@@ -57,7 +56,7 @@ export default function CreateDinePage() {
             ))}
           </div>
         </div>
-        <div className="space-y-2"><Label htmlFor="comment">一句话点评</Label><Input id="comment" value={comment} onChange={e => setComment(e.target.value)} placeholder="如：涮毛肚绝了" maxLength={100} /><p className="text-xs text-muted-foreground text-right">{comment.length}/100</p></div>
+        <div className="space-y-2"><Label htmlFor="comment">点评</Label><textarea id="comment" value={comment} onChange={e => setComment(e.target.value)} placeholder="如：涮毛肚绝了" rows={1} className="w-full rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-sm placeholder:text-muted-foreground resize-none overflow-hidden [field-sizing:content]" style={{ minHeight: '2.5rem' }} /></div>
         <div className="mt-auto pt-4"><Button type="submit" disabled={submitting || !restaurant.trim() || !date} className="w-full">{submitting ? "添加中..." : "记录聚餐"}</Button></div>
       </form>
     </div>
