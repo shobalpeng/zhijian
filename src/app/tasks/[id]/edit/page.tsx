@@ -77,7 +77,7 @@ export default function EditTaskPage() {
           <div className="relative">
             <Textarea id="description" value={description} onChange={e => setDescription(e.target.value)} placeholder="详细说明任务要求..." rows={4} />
             <div className="absolute bottom-2 right-2">
-              <ImageUpload onUpload={(url) => setImageUrl(url)} />
+              <ImageUpload type="task" onUpload={(url) => setImageUrl(url)} />
             </div>
           </div>
         </div>

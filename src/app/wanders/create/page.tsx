@@ -76,7 +76,7 @@ export default function CreateWanderPage() {
               <button type="button" onClick={() => setImageUrl(null)} className="absolute top-2 right-2 rounded-full bg-background/80 p-1.5 text-xs text-muted-foreground">移除</button>
             </div>
           ) : (
-            <ImageUpload onUpload={(url) => setImageUrl(url)} />
+            <ImageUpload type="wander" onUpload={(url) => setImageUrl(url)} />
           )}
         </div>
 

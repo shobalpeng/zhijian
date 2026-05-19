@@ -5,8 +5,6 @@ import { v4 as uuidv4 } from "uuid";
 
 const UPLOADS_DIR = join(process.cwd(), "data", "uploads");
 
-mkdirSync(UPLOADS_DIR, { recursive: true });
-
 const MIME_TO_EXT: Record<string, string> = {
   "image/jpeg": ".jpg",
   "image/png": ".png",
@@ -21,6 +19,9 @@ export async function POST(request: Request) {
     return Response.json({ error: "Not authenticated" }, { status: 401 });
   }
 
+  const { searchParams } = new URL(request.url);
+  const type = searchParams.get("type") ?? "misc";
+
   const formData = await request.formData();
   const file = formData.get("file");
 
@@ -30,9 +31,9 @@ export async function POST(request: Request) {
 
   const ext = MIME_TO_EXT[file.type] ?? ".bin";
   const filename = uuidv4() + ext;
-  const buffer = Buffer.from(await file.arrayBuffer());
+  const dir = join(UPLOADS_DIR, type);
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, filename), Buffer.from(await file.arrayBuffer()));
 
-  writeFileSync(join(UPLOADS_DIR, filename), buffer);
-
-  return Response.json({ url: "/api/uploads/" + filename });
+  return Response.json({ url: "/api/uploads/" + type + "/" + filename });
 }

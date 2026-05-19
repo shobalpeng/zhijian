@@ -80,7 +80,7 @@ export default function CreateRecipePage() {
               </button>
             </div>
           ) : (
-            <ImageUpload onUpload={(url) => setImageUrl(url)} />
+            <ImageUpload type="recipe" onUpload={(url) => setImageUrl(url)} />
           )}
         </div>
 

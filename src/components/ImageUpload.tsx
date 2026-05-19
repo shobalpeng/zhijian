@@ -5,10 +5,11 @@ import { ImagePlus, Loader2 } from "lucide-react";
 
 interface ImageUploadProps {
   onUpload: (url: string) => void;
+  type: string; // e.g. "task", "recipe", "travel"
   className?: string;
 }
 
-export function ImageUpload({ onUpload, className }: ImageUploadProps) {
+export function ImageUpload({ onUpload, type, className }: ImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -21,7 +22,7 @@ export function ImageUpload({ onUpload, className }: ImageUploadProps) {
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await fetch("/api/upload", {
+      const res = await fetch(`/api/upload?type=${type}`, {
         method: "POST",
         body: formData,
       });
@@ -34,7 +35,6 @@ export function ImageUpload({ onUpload, className }: ImageUploadProps) {
       console.error("Upload failed:", err);
     } finally {
       setUploading(false);
-      // Reset so the same file can be re-selected
       if (inputRef.current) {
         inputRef.current.value = "";
       }

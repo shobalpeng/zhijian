@@ -95,7 +95,7 @@ export default function CreateTaskPage() {
               </button>
             </div>
           ) : (
-            <ImageUpload onUpload={(url) => setImageUrl(url)} />
+            <ImageUpload type="task" onUpload={(url) => setImageUrl(url)} />
           )}
         </div>
 

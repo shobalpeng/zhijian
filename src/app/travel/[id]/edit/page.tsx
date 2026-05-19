@@ -137,7 +137,7 @@ export default function EditTravelPage() {
               <button type="button" onClick={() => setCoverImage(null)} className="absolute top-2 right-2 rounded-full bg-background/80 p-1.5 text-xs text-muted-foreground">移除</button>
             </div>
           ) : (
-            <ImageUpload onUpload={(url) => setCoverImage(url)} />
+            <ImageUpload type="travel" onUpload={(url) => setCoverImage(url)} />
           )}
         </div>
 

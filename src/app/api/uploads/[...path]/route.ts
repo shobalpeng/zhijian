@@ -14,23 +14,30 @@ const EXT_TO_MIME: Record<string, string> = {
 
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ filename: string }> }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  const { filename } = await params;
+  const { path } = await params;
 
-  // Prevent path traversal
-  if (filename.includes("..") || filename.includes("/") || filename.includes("\\")) {
+  if (!path || path.length === 0) {
     return new Response("Not found", { status: 404 });
   }
 
-  const filePath = join(UPLOADS_DIR, filename);
+  // Prevent path traversal
+  for (const seg of path) {
+    if (seg.includes("..") || seg.includes("\\")) {
+      return new Response("Not found", { status: 404 });
+    }
+  }
+
+  const relativePath = path.join("/");
+  const filePath = join(UPLOADS_DIR, relativePath);
 
   if (!existsSync(filePath)) {
     return new Response("Not found", { status: 404 });
   }
 
   const buffer = readFileSync(filePath);
-  const ext = filename.substring(filename.lastIndexOf("."));
+  const ext = path[path.length - 1].substring(path[path.length - 1].lastIndexOf("."));
   const mimeType = EXT_TO_MIME[ext] ?? "application/octet-stream";
 
   return new Response(buffer, {

@@ -96,7 +96,7 @@ export default function CreateWishPage() {
               </button>
             </div>
           ) : (
-            <ImageUpload onUpload={(url) => setImageUrl(url)} />
+            <ImageUpload type="wish" onUpload={(url) => setImageUrl(url)} />
           )}
         </div>
 

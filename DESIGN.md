@@ -591,7 +591,22 @@
 
 ## 图片存储
 
-图片上传至 `data/uploads/` 目录，通过 `/api/uploads/[filename]` 接口读取。与 SQLite 数据库文件同目录，备份只需复制 `data/` 文件夹。
+图片上传至 `data/uploads/` 目录，通过 `/api/uploads/[type]/[filename]` 接口读取。按功能分目录存储，便于管理：
+
+```
+data/uploads/
+├── task/      # 任务
+├── wish/      # 心愿
+├── recipe/    # 菜谱
+├── travel/    # 旅游
+├── wander/    # 城市漫游
+├── dine/      # 聚餐
+├── item/      # 日均成本
+└── misc/      # 未分类（默认兜底）
+```
+
+兼容旧路径格式 `/api/uploads/[filename]`（图片直接放在 `data/uploads/` 根目录）。
+与 SQLite 数据库文件同目录，备份只需复制 `data/` 文件夹。
 
 ---
 

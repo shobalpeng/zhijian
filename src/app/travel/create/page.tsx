@@ -121,7 +121,7 @@ export default function CreateTravelPage() {
               </button>
             </div>
           ) : (
-            <ImageUpload onUpload={(url) => setCoverImage(url)} />
+            <ImageUpload type="travel" onUpload={(url) => setCoverImage(url)} />
           )}
         </div>
 
