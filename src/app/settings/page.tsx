@@ -27,6 +27,25 @@ export default function SettingsPage() {
   const [editingCap, setEditingCap] = useState(false);
   const [capValue, setCapValue] = useState("");
   const [savingCap, setSavingCap] = useState(false);
+  const [pwForm, setPwForm] = useState({ current: "", newPw: "" });
+  const [savingPw, setSavingPw] = useState(false);
+  const [showPwForm, setShowPwForm] = useState(false);
+
+  async function handleChangePw() {
+    setSavingPw(true);
+    try {
+      const res = await fetch("/api/auth/change-password", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword: pwForm.current, newPassword: pwForm.newPw }),
+      });
+      const data = await res.json();
+      if (!res.ok) { toast.error(data.error ?? "修改失败"); return; }
+      toast.success("密码已修改");
+      setShowPwForm(false);
+      setPwForm({ current: "", newPw: "" });
+    } catch { toast.error("修改失败"); }
+    finally { setSavingPw(false); }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -124,6 +143,18 @@ export default function SettingsPage() {
               </p>
             </div>
           </div>
+          {showPwForm ? (
+            <div className="mt-3 pt-3 border-t border-border flex flex-col gap-2">
+              <Input type="password" value={pwForm.current} onChange={e => setPwForm(f => ({ ...f, current: e.target.value }))} placeholder="当前密码" className="h-8 text-sm" />
+              <Input type="password" value={pwForm.newPw} onChange={e => setPwForm(f => ({ ...f, newPw: e.target.value }))} placeholder="新密码（至少4位）" className="h-8 text-sm" />
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" className="flex-1" onClick={() => { setShowPwForm(false); setPwForm({ current: "", newPw: "" }); }}>取消</Button>
+                <Button size="sm" className="flex-1" onClick={handleChangePw} disabled={savingPw || !pwForm.current || !pwForm.newPw || pwForm.newPw.length < 4}>{savingPw ? "修改中..." : "确认修改"}</Button>
+              </div>
+            </div>
+          ) : (
+            <button onClick={() => setShowPwForm(true)} className="mt-2 text-xs text-muted-foreground hover:text-foreground transition-colors">修改密码</button>
+          )}
         </div>
 
         {/* Pairing management */}
