@@ -403,13 +403,14 @@
 | restaurant | text | 餐厅名 |
 | date | text | 聚餐日期 YYYY-MM-DD |
 | people | text? | 参与人 |
+| peopleCount | integer? | 人数 |
 | dishes | text? | 菜品 |
-| cost | real? | 人均花费 |
+| cost | real? | 总花费 |
 | rating | integer? | 1-5 评分 |
 | comment | text? | 点评 |
-| image_url | text? | 照片 |
-| creator_id | integer | 创建者 |
-| created_at | text | |
+| imageUrl | text? | 照片 URL 或 JSON 数组（多张图片） |
+| creatorId | integer | 创建者 |
+| createdAt | text | |
 
 ### todos
 | 字段 | 类型 | 说明 |
@@ -499,12 +500,13 @@
 ## 聚餐记录功能（2026-05）
 
 ### 业务规则
-- 记录跟家人朋友的聚餐：餐厅、日期、参与人、菜品、人均花费、星级评分、点评、照片
-- 时间线卡片流展示，左侧圆点+竖线样式
-- 统计：聚餐次数、总花费、人均花费、最常去餐厅排名
+- 记录跟家人朋友的聚餐：餐厅、日期、参与人、人数、菜品、总花费、人均自动计算、星级评分、点评、多张照片
+- 时间线卡片流展示，左侧圆点+竖线样式，首张大图（朋友圈风格），点击可进入全屏图片浏览器
+- 创建/编辑页：总价、人数、人均三个字段横向均分排列，输入总价和人数后自动计算人均
+- 统计：聚餐次数、总花费、最常去餐厅排名
 
 ### 数据模型
-- **dines**：restaurant, date, people, dishes, cost, rating(1-5), comment, imageUrl
+- **dines**：restaurant, date, people, peopleCount, dishes, cost(总价), rating(1-5), comment, imageUrl(JSON数组)
 
 ### 页面
 - `/dines` — 时间线卡片流 + 统计卡片

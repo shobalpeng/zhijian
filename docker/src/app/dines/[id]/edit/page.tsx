@@ -7,24 +7,24 @@ import { TopBar } from "@/components/TopBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ImageUpload } from "@/components/ImageUpload";
+import { MultiImageUpload } from "@/components/MultiImageUpload";
 import { cn } from "@/lib/utils";
 import { Star } from "lucide-react";
 
 export default function EditDinePage() {
   const params = useParams(); const router = useRouter(); const id = Number(params.id);
   const [restaurant, setRestaurant] = useState(""); const [date, setDate] = useState("");
-  const [people, setPeople] = useState(""); const [dishes, setDishes] = useState("");
+  const [people, setPeople] = useState(""); const [peopleCount, setPeopleCount] = useState(""); const [dishes, setDishes] = useState("");
   const [cost, setCost] = useState(""); const [rating, setRating] = useState<number | null>(null);
-  const [comment, setComment] = useState(""); const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [comment, setComment] = useState(""); const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState(true); const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     let c = false;
     fetch(`/api/dines/${id}`).then(r => { if (!r.ok) throw new Error(); return r.json(); }).then(d => {
       if (c) return; setRestaurant(d.restaurant ?? ""); setDate(d.date ?? ""); setPeople(d.people ?? "");
-      setDishes(d.dishes ?? ""); setCost(d.cost != null ? String(d.cost) : ""); setRating(d.rating);
-      setComment(d.comment ?? ""); setImageUrl(d.imageUrl); setLoading(false);
+      setPeopleCount(d.peopleCount != null ? String(d.peopleCount) : ""); setDishes(d.dishes ?? ""); setCost(d.cost != null ? String(d.cost) : ""); setRating(d.rating);
+      setComment(d.comment ?? ""); setImageUrls(d.imageUrls ?? []); setLoading(false);
     }).catch(() => { if (!c) { toast.error("加载失败"); setLoading(false); } });
     return () => { c = true; };
   }, [id]);
@@ -34,7 +34,7 @@ export default function EditDinePage() {
     setSubmitting(true);
     try {
       const res = await fetch(`/api/dines/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ restaurant: restaurant.trim(), date, people: people || null, dishes: dishes || null, cost: cost ? Number(cost) : null, rating, comment: comment || null, imageUrl }) });
+        body: JSON.stringify({ restaurant: restaurant.trim(), date, people: people || null, peopleCount: peopleCount ? Number(peopleCount) : null, dishes: dishes || null, cost: cost ? Number(cost) : null, rating, comment: comment || null, imageUrls }) });
       if (!res.ok) { toast.error((await res.json()).error ?? "保存失败"); setSubmitting(false); return; }
       router.replace("/dines");
     } catch { toast.error("保存失败"); setSubmitting(false); }
@@ -50,10 +50,10 @@ export default function EditDinePage() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-5 px-4 py-6 flex-1">
         <div className="space-y-2"><Label htmlFor="r">餐厅名 *</Label><Input id="r" value={restaurant} onChange={e => setRestaurant(e.target.value)} required /></div>
         <div className="space-y-2"><Label htmlFor="d">聚餐日期 *</Label><Input id="d" type="date" value={date} onChange={e => setDate(e.target.value)} required /></div>
-        <div className="space-y-2"><Label>照片（可选）</Label>{imageUrl ? (<div className="relative rounded-lg overflow-hidden ring-1 ring-foreground/10"><img src={imageUrl} alt="" className="w-full h-48 object-cover" /><button type="button" onClick={() => setImageUrl(null)} className="absolute top-2 right-2 rounded-full bg-background/80 p-1.5 text-xs text-muted-foreground">移除</button></div>) : (<ImageUpload type="dine" onUpload={url => setImageUrl(url)} />)}</div>
-        <div className="space-y-2"><Label htmlFor="p">参与人</Label><Input id="p" value={people} onChange={e => setPeople(e.target.value)} /></div>
-        <div className="space-y-2"><Label htmlFor="di">菜品</Label><Input id="di" value={dishes} onChange={e => setDishes(e.target.value)} /></div>
-        <div className="space-y-2"><Label htmlFor="c">人均花费（元）</Label><Input id="c" type="number" value={cost} onChange={e => setCost(e.target.value)} /></div>
+        <div className="space-y-2"><Label>照片</Label><MultiImageUpload urls={imageUrls} onChange={setImageUrls} type="dine" /></div>
+        <div className="space-y-2"><Label htmlFor="p">参与人</Label><textarea id="p" value={people} onChange={e => setPeople(e.target.value)} rows={1} className="w-full rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-sm placeholder:text-muted-foreground resize-none overflow-hidden [field-sizing:content]" style={{ minHeight: "2.5rem" }} /></div>
+        <div className="space-y-2"><Label htmlFor="di">菜品</Label><textarea id="di" value={dishes} onChange={e => setDishes(e.target.value)} rows={1} className="w-full rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-sm placeholder:text-muted-foreground resize-none overflow-hidden [field-sizing:content]" style={{ minHeight: "2.5rem" }} /></div>
+<div className="flex items-center justify-between"><span className="flex items-center gap-1"><span className="text-sm font-medium shrink-0">总价</span><Input id="cost" type="number" value={cost} onChange={e => setCost(e.target.value)} placeholder="0" className="h-7 text-xs w-16" /><span className="text-xs text-muted-foreground">元</span></span><span className="flex items-center gap-1"><span className="text-sm font-medium shrink-0">人数</span><Input id="peopleCount" type="number" value={peopleCount} onChange={e => setPeopleCount(e.target.value)} placeholder="0" min="1" className="h-7 text-xs w-16" /><span className="text-xs text-muted-foreground">人</span></span><span className="flex items-center gap-1"><span className="text-sm font-medium shrink-0">人均</span><span className="text-sm font-medium text-primary tabular-nums">{cost && peopleCount && Number(cost) > 0 && Number(peopleCount) > 0 ? `¥${(Number(cost) / Number(peopleCount)).toFixed(1)}元` : "—"}</span></span></div>
         <div className="space-y-2"><Label>味道评分</Label><div className="flex gap-1">{[1,2,3,4,5].map(s => (<button key={s} type="button" onClick={() => setRating(rating===s?null:s)} className={cn("p-1", s<=(rating??0)?"text-amber-400":"text-muted-foreground/30")}><Star className={cn("h-6 w-6", s<=(rating??0)&&"fill-amber-400")} /></button>))}</div></div>
         <div className="space-y-2"><Label htmlFor="co">点评</Label><textarea id="co" value={comment} onChange={e => setComment(e.target.value)} rows={1} className="w-full rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-sm placeholder:text-muted-foreground resize-none overflow-hidden [field-sizing:content]" style={{ minHeight: '2.5rem' }} /></div>
         <div className="mt-auto pt-4 space-y-3"><Button type="submit" disabled={submitting||!restaurant.trim()||!date} className="w-full">{submitting?"保存中...":"保存修改"}</Button><Button type="button" variant="destructive" className="w-full" onClick={handleDelete}>删除记录</Button></div>

@@ -11,8 +11,8 @@ import { Search } from "lucide-react";
 
 interface Dine {
   id: number; restaurant: string; date: string; people: string | null;
-  dishes: string | null; cost: number | null; rating: number | null;
-  comment: string | null; imageUrl: string | null; creatorId: number;
+  dishes: string | null; cost: number | null; rating: number | null; peopleCount: number | null;
+  comment: string | null; imageUrls: string[] | null; creatorId: number;
 }
 
 interface DineStatsData {
@@ -68,8 +68,8 @@ export default function DinesPage() {
               <div className="mb-4"><DineStats stats={stats} /></div>
               {items.map((d, i) => (
                 <DineCard key={d.id} id={d.id} restaurant={d.restaurant} date={d.date}
-                  people={d.people} dishes={d.dishes} rating={d.rating}
-                  comment={d.comment} imageUrl={d.imageUrl} cost={d.cost}
+                  people={d.people} peopleCount={d.peopleCount} dishes={d.dishes} rating={d.rating}
+                  comment={d.comment} imageUrls={d.imageUrls} cost={d.cost}
                   isLast={i === items.length - 1} />
               ))}
             </>

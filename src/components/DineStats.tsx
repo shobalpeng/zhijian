@@ -27,9 +27,6 @@ export function DineStats({ stats }: DineStatsProps) {
           <p className="text-xs text-muted-foreground">总花费</p>
         </div>
       </div>
-      {stats.avgCost > 0 && (
-        <p className="text-xs text-muted-foreground text-center mb-2">人均约 ¥{stats.avgCost}</p>
-      )}
       {top.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           <span className="text-xs text-muted-foreground">🏆 最常去：</span>

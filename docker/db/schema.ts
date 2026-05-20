@@ -150,6 +150,7 @@ export const dines = sqliteTable("dines", {
   restaurant: text("restaurant").notNull(),
   date: text("date").notNull(), // YYYY-MM-DD
   people: text("people"),
+  peopleCount: integer("people_count"),
   dishes: text("dishes"),
   cost: real("cost"),
   rating: integer("rating"), // 1-5
