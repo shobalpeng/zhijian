@@ -27,6 +27,9 @@ export default function DinesPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [page, setPage] = useState(1);
+
+  const PAGE_SIZE = 10;
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 300);
@@ -42,6 +45,12 @@ export default function DinesPage() {
   }, [debouncedSearch]);
 
   useEffect(() => { load(); }, [load]);
+
+  const displayedItems = items.slice(0, page * PAGE_SIZE);
+  const hasMore = items.length > displayedItems.length;
+
+  // Reset page when search changes
+  useEffect(() => { setPage(1); }, [debouncedSearch]);
 
   return (
     <>
@@ -66,12 +75,19 @@ export default function DinesPage() {
           ) : (
             <>
               <div className="mb-4"><DineStats stats={stats} /></div>
-              {items.map((d, i) => (
+              {displayedItems.map((d, i) => (
                 <DineCard key={d.id} id={d.id} restaurant={d.restaurant} date={d.date}
                   people={d.people} peopleCount={d.peopleCount} dishes={d.dishes} rating={d.rating}
                   comment={d.comment} imageUrls={d.imageUrls} cost={d.cost}
-                  isLast={i === items.length - 1} />
+                  isLast={i === displayedItems.length - 1} />
               ))}
+              {hasMore && (
+                <div className="pt-4 pb-2 text-center">
+                  <button onClick={() => setPage(p => p + 1)} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    查看更多（{items.length - displayedItems.length}条）
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>

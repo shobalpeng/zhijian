@@ -26,6 +26,8 @@ interface Task {
   assigneeId: number;
 }
 
+const PAGE_SIZE = 10;
+
 const roleOptions = [
   { value: "all", label: "全部任务" },
   { value: "assigned", label: "指派给我的" },
@@ -47,6 +49,24 @@ function TasksContent() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [mounted, setMounted] = useState(false);
+  const [role, setRole] = useState(searchParams.get("role") || "assigned");
+  const [status, setStatus] = useState(searchParams.get("status") || "all");
+
+  useEffect(() => { setMounted(true); }, []);
+  // After hydration, apply localStorage fallback if no URL param
+  useEffect(() => {
+    if (!mounted) return;
+    if (!searchParams.get("role")) {
+      const stored = localStorage.getItem("tasks-role");
+      if (stored) setRole(stored);
+    }
+    if (!searchParams.get("status")) {
+      const stored = localStorage.getItem("tasks-status");
+      if (stored) setStatus(stored);
+    }
+  }, [mounted]);
 
   // Debounce search
   useEffect(() => {
@@ -54,18 +74,18 @@ function TasksContent() {
     return () => clearTimeout(timer);
   }, [search]);
 
-  // Filters — URL params first, then localStorage fallback
-  const role = searchParams.get("role") || (typeof window !== "undefined" && localStorage.getItem("tasks-role")) || "assigned";
-  const status = searchParams.get("status") || (typeof window !== "undefined" && localStorage.getItem("tasks-status")) || "all";
+  // Filters — URL params first, then localStorage fallback (after hydration)
 
-  function setRole(v: string) {
+  function setRoleValue(v: string) {
     localStorage.setItem("tasks-role", v);
+    setRole(v);
     const params = new URLSearchParams(searchParams.toString());
     params.set("role", v);
     router.replace(`/tasks?${params.toString()}`, { scroll: false });
   }
-  function setStatus(v: string) {
+  function setStatusValue(v: string) {
     localStorage.setItem("tasks-status", v);
+    setStatus(v);
     const params = new URLSearchParams(searchParams.toString());
     params.set("status", v);
     router.replace(`/tasks?${params.toString()}`, { scroll: false });
@@ -111,6 +131,12 @@ function TasksContent() {
     });
   }, [tasks, role, status, userId]);
 
+  const displayedTasks = filtered.slice(0, page * PAGE_SIZE);
+  const hasMore = filtered.length > displayedTasks.length;
+
+  // Reset page when filters change
+  useEffect(() => { setPage(1); }, [debouncedSearch, role, status]);
+
   return (
     <>
       <TopBar title="任务" />
@@ -126,7 +152,7 @@ function TasksContent() {
 
       {/* Filters */}
       <div className="flex gap-2 px-4 py-3">
-        <Select value={role} onValueChange={(v) => v && setRole(v)}>
+        <Select value={role} onValueChange={(v) => v && setRoleValue(v)}>
           <SelectTrigger className="flex-1 h-9 text-sm">
             <SelectValue>
               {roleOptions.find((o) => o.value === role)?.label}
@@ -141,7 +167,7 @@ function TasksContent() {
           </SelectContent>
         </Select>
 
-        <Select value={status} onValueChange={(v) => v && setStatus(v)}>
+        <Select value={status} onValueChange={(v) => v && setStatusValue(v)}>
           <SelectTrigger className="flex-1 h-9 text-sm">
             <SelectValue>
               {statusOptions.find((o) => o.value === status)?.label}
@@ -164,8 +190,8 @@ function TasksContent() {
         ) : filtered.length === 0 ? (
           <EmptyState icon="🏃" title={debouncedSearch ? "没有找到匹配的任务" : "还没有任务"} description={debouncedSearch ? "换个关键词试试" : "发布第一个任务，开始攒积分吧"} />
         ) : (
-          <div className="space-y-3">
-            {filtered.map((task) => (
+          <><div className="space-y-3">
+            {displayedTasks.map((task) => (
               <TaskCard
                 key={task.id}
                 id={task.id}
@@ -184,6 +210,13 @@ function TasksContent() {
               />
             ))}
           </div>
+          {hasMore && (
+            <div className="pt-4 pb-2 text-center">
+              <button onClick={() => setPage(p => p + 1)} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                查看更多（{filtered.length - displayedTasks.length}条）
+              </button>
+            </div>
+          )}</>
         )}
       </div>
       </PullToRefresh>

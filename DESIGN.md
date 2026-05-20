@@ -588,6 +588,7 @@
 | 下拉刷新 | `PullToRefresh` | 支持触摸拖拽 + 鼠标拖拽 |
 | Toast 通知 | `sonner` | `toast.success()` / `toast.error()`，`<Toaster>` 在根布局 |
 | API 调用 | `fetchWithToast` | `src/lib/api-fetch.ts` 封装，自动拦截错误并弹出 toast |
+| 分页加载 | 内联实现 | 列表页默认显示 10 条，底部"查看更多"按钮展开，筛选/搜索切换自动重置页码 |
 
 ---
 

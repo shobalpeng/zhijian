@@ -430,6 +430,42 @@ UI：筛选区上方 `<Input className="pl-9" />` 嵌 `<Search>` 图标。空状
 
 ---
 
+## 分页模式
+
+所有列表页默认显示 10 条记录，点击底部"查看更多"展开更多。客户端分页，不涉及 API 改动。
+
+### 实现
+
+```tsx
+const PAGE_SIZE = 10;
+const [page, setPage] = useState(1);
+
+const displayedItems = items.slice(0, page * PAGE_SIZE);
+const hasMore = items.length > displayedItems.length;
+
+// 筛选/排序/搜索变化时重置页码
+useEffect(() => { setPage(1); }, [debouncedSearch, role, status]);
+```
+
+### 查看更多按钮
+
+```tsx
+{hasMore && (
+  <div className="pt-4 pb-2 text-center">
+    <button onClick={() => setPage(p => p + 1)}
+      className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+      查看更多（{items.length - displayedItems.length}条）
+    </button>
+  </div>
+)}
+```
+
+### 注意
+- 列表和按钮需用 Fragment `<>...</>` 包裹（不能作为三元运算符的直接子节点）
+- 带筛选器的页面（任务/心愿）还需修复 hydration：`role`/`status` 用 `useState` + `useEffect` 模式替代 `typeof window` 内联判断
+
+---
+
 ## 功能模块一览
 
 | 模块 | API 路由 | 页面路由 | 数据表 |

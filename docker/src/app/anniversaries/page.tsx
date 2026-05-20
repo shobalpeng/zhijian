@@ -17,9 +17,12 @@ interface Anniversary {
   userId: number;
 }
 
+const PAGE_SIZE = 10;
+
 export default function AnniversariesPage() {
   const [items, setItems] = useState<Anniversary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
 
   const load = useCallback(async () => {
     try {
@@ -39,6 +42,9 @@ export default function AnniversariesPage() {
     load();
   }, [load]);
 
+  const displayedItems = items.slice(0, page * PAGE_SIZE);
+  const hasMore = items.length > displayedItems.length;
+
   return (
     <>
       <TopBar title="纪念日" showBell={false} />
@@ -49,8 +55,8 @@ export default function AnniversariesPage() {
           ) : items.length === 0 ? (
             <EmptyState icon="💝" title="还没有添加纪念日" description="点击下方 + 按钮添加第一个纪念日" />
           ) : (
-            <div className="space-y-3">
-              {items.map((a) => (
+            <><div className="space-y-3">
+              {displayedItems.map((a) => (
                 <AnniversaryCard
                   key={a.id}
                   id={a.id}
@@ -62,6 +68,13 @@ export default function AnniversariesPage() {
                 />
               ))}
             </div>
+            {hasMore && (
+              <div className="pt-4 pb-2 text-center">
+                <button onClick={() => setPage(p => p + 1)} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  查看更多（{items.length - displayedItems.length}条）
+                </button>
+              </div>
+            )}</>
           )}
         </div>
       </PullToRefresh>

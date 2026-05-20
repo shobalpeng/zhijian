@@ -28,6 +28,8 @@ interface Wish {
   fulfillerName?: string;
 }
 
+const PAGE_SIZE = 10;
+
 const roleOptions = [
   { value: "all", label: "全部心愿" },
   { value: "mine", label: "我的心愿" },
@@ -50,18 +52,33 @@ function WishesContent() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [mounted, setMounted] = useState(false);
+  const [role, setRole] = useState(searchParams.get("role") || "mine");
+  const [status, setStatus] = useState(searchParams.get("status") || "all");
+
+  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    if (!mounted) return;
+    if (!searchParams.get("role")) {
+      const stored = localStorage.getItem("wishes-role");
+      if (stored) setRole(stored);
+    }
+    if (!searchParams.get("status")) {
+      const stored = localStorage.getItem("wishes-status");
+      if (stored) setStatus(stored);
+    }
+  }, [mounted]);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 300);
     return () => clearTimeout(timer);
   }, [search]);
 
-  // Filters — URL params first, then localStorage fallback
-  const role = searchParams.get("role") || (typeof window !== "undefined" && localStorage.getItem("wishes-role")) || "mine";
-  const status = searchParams.get("status") || (typeof window !== "undefined" && localStorage.getItem("wishes-status")) || "all";
+  // Filters — URL params first, then localStorage fallback (after hydration)
 
-  function setRole(v: string) { localStorage.setItem("wishes-role", v); const p = new URLSearchParams(searchParams.toString()); p.set("role", v); router.replace(`/wishes?${p.toString()}`, { scroll: false }); }
-  function setStatus(v: string) { localStorage.setItem("wishes-status", v); const p = new URLSearchParams(searchParams.toString()); p.set("status", v); router.replace(`/wishes?${p.toString()}`, { scroll: false }); }
+  function setRoleValue(v: string) { localStorage.setItem("wishes-role", v); setRole(v); const p = new URLSearchParams(searchParams.toString()); p.set("role", v); router.replace(`/wishes?${p.toString()}`, { scroll: false }); }
+  function setStatusValue(v: string) { localStorage.setItem("wishes-status", v); setStatus(v); const p = new URLSearchParams(searchParams.toString()); p.set("status", v); router.replace(`/wishes?${p.toString()}`, { scroll: false }); }
 
   async function loadWishes() {
     setLoading(true);
@@ -92,6 +109,11 @@ function WishesContent() {
     return source.filter((w) => status === "all" || w.status === status);
   }, [myWishes, partnerWishes, role, status]);
 
+  const displayedWishes = filtered.slice(0, page * PAGE_SIZE);
+  const hasMore = filtered.length > displayedWishes.length;
+
+  useEffect(() => { setPage(1); }, [debouncedSearch, role, status]);
+
   return (
     <>
       <TopBar title="心愿" />
@@ -107,7 +129,7 @@ function WishesContent() {
 
       {/* Filters */}
       <div className="flex gap-2 px-4 py-3">
-        <Select value={role} onValueChange={(v) => v && setRole(v)}>
+        <Select value={role} onValueChange={(v) => v && setRoleValue(v)}>
           <SelectTrigger className="flex-1 h-9 text-sm">
             <SelectValue>
               {roleOptions.find((o) => o.value === role)?.label}
@@ -122,7 +144,7 @@ function WishesContent() {
           </SelectContent>
         </Select>
 
-        <Select value={status} onValueChange={(v) => v && setStatus(v)}>
+        <Select value={status} onValueChange={(v) => v && setStatusValue(v)}>
           <SelectTrigger className="flex-1 h-9 text-sm">
             <SelectValue>
               {statusOptions.find((o) => o.value === status)?.label}
@@ -145,8 +167,8 @@ function WishesContent() {
         ) : filtered.length === 0 ? (
           <EmptyState icon="💝" title={debouncedSearch ? "没有找到匹配的心愿" : "还没有心愿"} description={debouncedSearch ? "换个关键词试试" : "发布一个心愿，让Ta来实现吧"} />
         ) : (
-          <div className="space-y-3">
-            {filtered.map((wish) => (
+          <><div className="space-y-3">
+            {displayedWishes.map((wish) => (
               <WishCard
                 key={wish.id}
                 id={wish.id}
@@ -165,6 +187,13 @@ function WishesContent() {
               />
             ))}
           </div>
+          {hasMore && (
+            <div className="pt-4 pb-2 text-center">
+              <button onClick={() => setPage(p => p + 1)} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                查看更多（{filtered.length - displayedWishes.length}条）
+              </button>
+            </div>
+          )}</>
         )}
       </div>
       </PullToRefresh>

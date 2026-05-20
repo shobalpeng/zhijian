@@ -10,14 +10,20 @@ import { Skeleton } from "@/components/Skeleton";
 
 interface Item { id: number; name: string; date: string; price: number; category: string | null; status: string; retiredDate?: string | null; imageUrl: string | null; }
 
+const PAGE_SIZE = 10;
+
 export default function ItemsPage() {
   const [data, setData] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
+  const [page, setPage] = useState(1);
   const load = useCallback(async () => {
     try { const r = await fetch(`/api/items?status=${filter}`); if (r.ok) { const d = await r.json(); setData(d.items); } } catch {} finally { setLoading(false); }
   }, [filter]);
   useEffect(() => { load(); }, [load]);
+
+  // Reset page when filter changes
+  useEffect(() => { setPage(1); }, [filter]);
 
   // Sort by daily cost descending
   const sorted = [...data].sort((a, b) => {
@@ -41,7 +47,14 @@ export default function ItemsPage() {
         <div className="px-4 pt-4 pb-4">
           {loading ? <Skeleton className="h-[80px]" count={3} />
           : sorted.length === 0 ? <EmptyState icon="📊" title="还没有物品" description="点击下方 + 按钮添加大件物品" />
-          : <div className="space-y-3">{sorted.map(item => <ItemCard key={item.id} {...item} />)}</div>}
+          : <><div className="space-y-3">{sorted.slice(0, page * PAGE_SIZE).map(item => <ItemCard key={item.id} {...item} />)}</div>
+            {sorted.length > page * PAGE_SIZE && (
+              <div className="pt-4 pb-2 text-center">
+                <button onClick={() => setPage(p => p + 1)} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  查看更多（{sorted.length - page * PAGE_SIZE}条）
+                </button>
+              </div>
+            )}</>}
         </div>
       </PullToRefresh>
     </>

@@ -31,6 +31,8 @@ const sorts = [
   { key: "lastCooked", label: "最近做过" },
 ] as const;
 
+const PAGE_SIZE = 10;
+
 export default function RecipesPage() {
   const router = useRouter();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -38,6 +40,7 @@ export default function RecipesPage() {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("latest");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [page, setPage] = useState(1);
 
   // Debounce search
   useEffect(() => {
@@ -67,6 +70,12 @@ export default function RecipesPage() {
     setLoading(true);
     load();
   }, [load]);
+
+  const displayedRecipes = recipes.slice(0, page * PAGE_SIZE);
+  const hasMore = recipes.length > displayedRecipes.length;
+
+  // Reset page when sort or search changes
+  useEffect(() => { setPage(1); }, [sort, debouncedSearch]);
 
   return (
     <>
@@ -114,8 +123,8 @@ export default function RecipesPage() {
               description={debouncedSearch ? "换个关键词试试" : "点击下方 + 按钮添加第一道菜"}
             />
           ) : (
-            <div className="space-y-3">
-              {recipes.map((recipe) => (
+            <><div className="space-y-3">
+              {displayedRecipes.map((recipe) => (
                 <RecipeCard
                   key={recipe.id}
                   id={recipe.id}
@@ -127,6 +136,13 @@ export default function RecipesPage() {
                 />
               ))}
             </div>
+            {hasMore && (
+              <div className="pt-4 pb-2 text-center">
+                <button onClick={() => setPage(p => p + 1)} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  查看更多（{recipes.length - displayedRecipes.length}条）
+                </button>
+              </div>
+            )}</>
           )}
         </div>
       </PullToRefresh>
