@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { MapPin, Users, Star } from "lucide-react";
 import { ImageViewer } from "@/components/ImageViewer";
@@ -26,12 +26,31 @@ function ImageCarousel({ urls, onOpen }: { urls: string[]; onOpen: (i: number) =
   const containerRef = useRef<HTMLDivElement>(null);
   const startX = useRef(0);
   const hasDragged = useRef(false);
+  const draggingRef = useRef(false);
 
   const getContainerWidth = () => containerRef.current?.offsetWidth ?? 1;
+
+  // Native touchmove listener with { passive: false } to allow preventDefault
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const handler = (e: TouchEvent) => {
+      if (!draggingRef.current) return;
+      const touch = e.touches[0];
+      if (!touch) return;
+      const diff = touch.clientX - startX.current;
+      if (Math.abs(diff) > 10) hasDragged.current = true;
+      setOffsetX(diff);
+      e.preventDefault();
+    };
+    el.addEventListener("touchmove", handler, { passive: false });
+    return () => el.removeEventListener("touchmove", handler);
+  }, []);
 
   const beginDrag = (clientX: number) => {
     startX.current = clientX;
     hasDragged.current = false;
+    draggingRef.current = true;
     setIsDragging(true);
   };
 
@@ -44,6 +63,7 @@ function ImageCarousel({ urls, onOpen }: { urls: string[]; onOpen: (i: number) =
 
   const endDrag = () => {
     setIsDragging(false);
+    draggingRef.current = false;
     if (hasDragged.current) {
       const threshold = getContainerWidth() * 0.2;
       if (Math.abs(offsetX) > threshold) {
@@ -65,9 +85,8 @@ function ImageCarousel({ urls, onOpen }: { urls: string[]; onOpen: (i: number) =
     <div>
       <div
         ref={containerRef}
-        className="relative overflow-hidden select-none"
+        className="relative overflow-hidden select-none touch-pan-y"
         onTouchStart={(e) => beginDrag(e.touches[0].clientX)}
-        onTouchMove={(e) => moveDrag(e.touches[0].clientX)}
         onTouchEnd={endDrag}
         onMouseDown={(e) => beginDrag(e.clientX)}
         onMouseMove={(e) => isDragging && moveDrag(e.clientX)}
