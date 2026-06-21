@@ -65,7 +65,7 @@ function ImageCarousel({ urls, onOpen }: { urls: string[]; onOpen: (i: number) =
     <div>
       <div
         ref={containerRef}
-        className="relative overflow-hidden select-none"
+        className="relative overflow-hidden select-none touch-pan-y"
         onTouchStart={(e) => beginDrag(e.touches[0].clientX)}
         onTouchMove={(e) => moveDrag(e.touches[0].clientX)}
         onTouchEnd={endDrag}
