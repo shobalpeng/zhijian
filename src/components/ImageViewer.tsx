@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
+import { createPortal } from "react-dom";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ImageViewerProps {
@@ -13,6 +14,9 @@ interface ImageViewerProps {
 export function ImageViewer({ urls, index, onClose, onChangeIndex }: ImageViewerProps) {
   const hasPrev = index > 0;
   const hasNext = index < urls.length - 1;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   const prev = useCallback(() => { if (hasPrev) onChangeIndex(index - 1); }, [hasPrev, index, onChangeIndex]);
   const next = useCallback(() => { if (hasNext) onChangeIndex(index + 1); }, [hasNext, index, onChangeIndex]);
@@ -31,29 +35,35 @@ export function ImageViewer({ urls, index, onClose, onChangeIndex }: ImageViewer
     };
   }, [onClose, prev, next]);
 
-  return (
-    <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center" onClick={onClose}>
-      <button onClick={onClose} className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+  if (!mounted) return null;
+  return createPortal(
+    <div className="fixed inset-0 z-50" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/90" />
+
+      <div className="absolute inset-0 flex items-center justify-center">
+        <img src={urls[index]} alt="" className="max-w-[95vw] max-h-[90dvh] object-contain select-none" onClick={(e) => e.stopPropagation()} />
+      </div>
+
+      <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center hover:bg-black/60 transition-colors">
         <X className="h-6 w-6 text-white" />
       </button>
 
       {hasPrev && (
-        <button onClick={(e) => { e.stopPropagation(); prev(); }} className="absolute left-4 z-10 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
-          <ChevronLeft className="h-6 w-6 text-white" />
+        <button onClick={(e) => { e.stopPropagation(); prev(); }} className="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center hover:bg-black/60 transition-colors shadow-lg shadow-black/20">
+          <ChevronLeft className="h-7 w-7 text-white" />
         </button>
       )}
-
-      <img src={urls[index]} alt="" className="max-w-[95vw] max-h-[90vh] object-contain select-none" onClick={(e) => e.stopPropagation()} />
 
       {hasNext && (
-        <button onClick={(e) => { e.stopPropagation(); next(); }} className="absolute right-4 z-10 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
-          <ChevronRight className="h-6 w-6 text-white" />
+        <button onClick={(e) => { e.stopPropagation(); next(); }} className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center hover:bg-black/60 transition-colors shadow-lg shadow-black/20">
+          <ChevronRight className="h-7 w-7 text-white" />
         </button>
       )}
 
-      <div className="absolute bottom-6 text-white/70 text-sm font-medium">
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/70 text-sm font-medium">
         {index + 1} / {urls.length}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

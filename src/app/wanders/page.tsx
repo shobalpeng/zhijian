@@ -13,7 +13,7 @@ interface Wander {
   id: number;
   location: string;
   date: string;
-  imageUrl: string | null;
+  imageUrls: string[] | null;
   mood: string | null;
   creatorId: number;
 }
@@ -101,7 +101,7 @@ export default function WandersPage() {
                   id={w.id}
                   location={w.location}
                   date={w.date}
-                  imageUrl={w.imageUrl}
+                  imageUrls={w.imageUrls}
                   mood={w.mood}
                   isLast={i === displayedItems.length - 1}
                 />

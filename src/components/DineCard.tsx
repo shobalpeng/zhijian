@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import { MapPin, Users, Star } from "lucide-react";
 import { ImageViewer } from "@/components/ImageViewer";
@@ -19,16 +19,106 @@ interface DineCardProps {
   isLast?: boolean;
 }
 
-function ImageGrid({ urls, onOpen }: { urls: string[]; onOpen: (i: number) => void }) {
+function ImageCarousel({ urls, onOpen }: { urls: string[]; onOpen: (i: number) => void }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [offsetX, setOffsetX] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const startX = useRef(0);
+  const hasDragged = useRef(false);
+
+  const getContainerWidth = () => containerRef.current?.offsetWidth ?? 1;
+
+  const beginDrag = (clientX: number) => {
+    startX.current = clientX;
+    hasDragged.current = false;
+    setIsDragging(true);
+  };
+
+  const moveDrag = (clientX: number) => {
+    if (!isDragging) return;
+    const diff = clientX - startX.current;
+    if (Math.abs(diff) > 10) hasDragged.current = true;
+    setOffsetX(diff);
+  };
+
+  const endDrag = () => {
+    setIsDragging(false);
+    if (hasDragged.current) {
+      const threshold = getContainerWidth() * 0.2;
+      if (Math.abs(offsetX) > threshold) {
+        if (offsetX > 0 && currentIndex > 0) {
+          setCurrentIndex(i => i - 1);
+        } else if (offsetX < 0 && currentIndex < urls.length - 1) {
+          setCurrentIndex(i => i + 1);
+        }
+      }
+    }
+    setOffsetX(0);
+  };
+
+  const translateX = isDragging
+    ? -(currentIndex * 100) + (offsetX / getContainerWidth()) * 100
+    : -(currentIndex * 100);
+
   return (
-    <div className="relative">
-      <button type="button" onClick={(e) => { e.preventDefault(); onOpen(0); }} className="w-full bg-muted overflow-hidden hover:opacity-90 transition-opacity">
-        <img src={urls[0]} alt="" className="w-full object-cover max-h-64" style={{ height: 'auto' }} />
-      </button>
+    <div>
+      <div
+        ref={containerRef}
+        className="relative overflow-hidden select-none"
+        onTouchStart={(e) => beginDrag(e.touches[0].clientX)}
+        onTouchMove={(e) => moveDrag(e.touches[0].clientX)}
+        onTouchEnd={endDrag}
+        onMouseDown={(e) => beginDrag(e.clientX)}
+        onMouseMove={(e) => isDragging && moveDrag(e.clientX)}
+        onMouseUp={endDrag}
+        onMouseLeave={() => { if (isDragging) endDrag(); }}
+      >
+        <div
+          className="flex"
+          style={{
+            transform: `translateX(${translateX}%)`,
+            transition: isDragging ? 'none' : 'transform 300ms ease-out',
+          }}
+        >
+          {urls.map((url, i) => (
+            <button
+              key={i}
+              type="button"
+              className="w-full shrink-0 bg-muted focus:outline-none"
+              onClick={(e) => {
+                e.preventDefault();
+                if (hasDragged.current) {
+                  hasDragged.current = false;
+                  return;
+                }
+                onOpen(i);
+              }}
+            >
+              <img src={url} alt="" className="w-full object-cover max-h-64" style={{ height: 'auto' }} draggable={false} />
+            </button>
+          ))}
+        </div>
+      </div>
+
       {urls.length > 1 && (
-        <button type="button" onClick={(e) => { e.preventDefault(); onOpen(0); }} className="absolute bottom-2 right-2 rounded-full bg-background/80 px-2.5 py-1 text-xs font-medium text-foreground backdrop-blur">
-          共 {urls.length} 张
-        </button>
+        <div className="flex justify-center gap-1.5 py-2">
+          {urls.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              className={`rounded-full transition-all ${
+                i === currentIndex
+                  ? 'bg-primary w-5 h-2'
+                  : 'bg-muted-foreground/30 w-2 h-2 hover:bg-muted-foreground/50'
+              }`}
+              onClick={(e) => {
+                e.preventDefault();
+                setCurrentIndex(i);
+              }}
+            />
+          ))}
+        </div>
       )}
     </div>
   );
@@ -46,7 +136,7 @@ export function DineCard({ id, restaurant, date, people, peopleCount, rating, co
       </div>
       <Link href={`/dines/${id}/edit`} className={`flex-1 min-w-0 rounded-xl bg-card ring-1 ring-foreground/10 hover:bg-muted/30 transition-colors overflow-hidden ${!isLast ? "mb-4" : ""}`}>
         {urls.length > 0 && (
-          <ImageGrid urls={urls} onOpen={setViewerIndex} />
+          <ImageCarousel urls={urls} onOpen={setViewerIndex} />
         )}
         <div className="p-3">
           <div className="flex items-center justify-between gap-2">
@@ -68,7 +158,7 @@ export function DineCard({ id, restaurant, date, people, peopleCount, rating, co
             </p>
           )}
           {cost && <p className="text-xs text-muted-foreground mt-0.5">总价 ¥{cost}元{peopleCount && peopleCount > 0 ? ` · 人均 ¥${(cost / peopleCount).toFixed(1)}元` : ""}</p>}
-          {comment && <p className="text-sm text-muted-foreground mt-1 italic">"{comment}"</p>}
+          {comment && <p className="text-sm text-muted-foreground mt-1">"{comment}"</p>}
         </div>
       </Link>
 

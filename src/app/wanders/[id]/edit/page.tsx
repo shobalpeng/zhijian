@@ -7,7 +7,7 @@ import { TopBar } from "@/components/TopBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ImageUpload } from "@/components/ImageUpload";
+import { MultiImageUpload } from "@/components/MultiImageUpload";
 
 export default function EditWanderPage() {
   const params = useParams();
@@ -16,7 +16,7 @@ export default function EditWanderPage() {
 
   const [location, setLocation] = useState("");
   const [date, setDate] = useState("");
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [mood, setMood] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -29,7 +29,7 @@ export default function EditWanderPage() {
         if (cancelled) return;
         setLocation(data.location ?? "");
         setDate(data.date ?? "");
-        setImageUrl(data.imageUrl);
+        setImageUrls(data.imageUrls ?? []);
         setMood(data.mood ?? "");
         setLoading(false);
       })
@@ -45,7 +45,7 @@ export default function EditWanderPage() {
       const res = await fetch(`/api/wanders/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ location: location.trim(), date, imageUrl, mood: mood.trim() || null }),
+        body: JSON.stringify({ location: location.trim(), date, imageUrls, mood: mood.trim() || null }),
       });
       if (!res.ok) { const err = await res.json(); toast.error(err.error ?? "保存失败"); setSubmitting(false); return; }
       router.replace("/wanders");
@@ -88,14 +88,7 @@ export default function EditWanderPage() {
         </div>
         <div className="space-y-2">
           <Label>照片（可选）</Label>
-          {imageUrl ? (
-            <div className="relative rounded-lg overflow-hidden ring-1 ring-foreground/10">
-              <img src={imageUrl} alt="" className="w-full h-48 object-cover" />
-              <button type="button" onClick={() => setImageUrl(null)} className="absolute top-2 right-2 rounded-full bg-background/80 p-1.5 text-xs text-muted-foreground">移除</button>
-            </div>
-          ) : (
-            <ImageUpload type="wander" onUpload={(url) => setImageUrl(url)} />
-          )}
+          <MultiImageUpload urls={imageUrls} onChange={setImageUrls} type="wander" max={9} />
         </div>
         <div className="space-y-2">
           <Label htmlFor="mood">心情</Label>

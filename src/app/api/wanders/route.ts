@@ -3,6 +3,16 @@ import { db } from "@/db";
 import { wanders } from "@/db/schema";
 import { getWanders, getWanderStats } from "@/lib/db";
 
+function parseImageUrls(item: any) {
+  if (!item?.imageUrl) return { ...item, imageUrls: null, imageUrl: undefined };
+  try {
+    const parsed = JSON.parse(item.imageUrl);
+    return { ...item, imageUrls: Array.isArray(parsed) ? parsed : [item.imageUrl], imageUrl: undefined };
+  } catch {
+    return { ...item, imageUrls: [item.imageUrl], imageUrl: undefined };
+  }
+}
+
 export async function GET(request: Request) {
   const session = await getSession();
   if (!session.userId) {
@@ -11,7 +21,7 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search");
-  const list = getWanders(search);
+  const list = getWanders(search).map(parseImageUrls);
   const stats = getWanderStats();
   return Response.json({ wanders: list, stats });
 }
@@ -23,7 +33,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { location, date, imageUrl, mood } = body;
+  const { location, date, imageUrls, mood } = body;
 
   if (!location || !location.trim() || !date) {
     return Response.json({ error: "地点和日期不能为空" }, { status: 400 });
@@ -38,7 +48,7 @@ export async function POST(request: Request) {
     .values({
       location: location.trim(),
       date,
-      imageUrl: imageUrl || null,
+      imageUrl: imageUrls?.length ? JSON.stringify(imageUrls) : null,
       mood: mood || null,
       creatorId: session.userId,
       createdAt: new Date().toISOString(),
@@ -46,5 +56,5 @@ export async function POST(request: Request) {
     .returning()
     .get();
 
-  return Response.json({ wander: result });
+  return Response.json({ wander: parseImageUrls(result) });
 }

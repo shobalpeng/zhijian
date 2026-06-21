@@ -4,6 +4,16 @@ import { wanders } from "@/db/schema";
 import { getWanderById } from "@/lib/db";
 import { eq } from "drizzle-orm";
 
+function parseImageUrls(item: any) {
+  if (!item?.imageUrl) return { ...item, imageUrls: null, imageUrl: undefined };
+  try {
+    const parsed = JSON.parse(item.imageUrl);
+    return { ...item, imageUrls: Array.isArray(parsed) ? parsed : [item.imageUrl], imageUrl: undefined };
+  } catch {
+    return { ...item, imageUrls: [item.imageUrl], imageUrl: undefined };
+  }
+}
+
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -20,7 +30,7 @@ export async function GET(
   const item = getWanderById(wanderId);
   if (!item) return Response.json({ error: "Not found" }, { status: 404 });
 
-  return Response.json(item);
+  return Response.json(parseImageUrls(item));
 }
 
 export async function PUT(
@@ -40,7 +50,7 @@ export async function PUT(
   if (!item) return Response.json({ error: "Not found" }, { status: 404 });
 
   const body = await request.json();
-  const { location, date, imageUrl, mood } = body;
+  const { location, date, imageUrls, mood } = body;
 
   if (location !== undefined && !location.trim()) {
     return Response.json({ error: "地点不能为空" }, { status: 400 });
@@ -52,14 +62,14 @@ export async function PUT(
   const updates: Record<string, unknown> = {};
   if (location !== undefined) updates.location = location.trim();
   if (date !== undefined) updates.date = date;
-  if (imageUrl !== undefined) updates.imageUrl = imageUrl || null;
+  if (imageUrls !== undefined) updates.imageUrl = imageUrls?.length ? JSON.stringify(imageUrls) : null;
   if (mood !== undefined) updates.mood = mood || null;
 
   if (Object.keys(updates).length > 0) {
     db.update(wanders).set(updates).where(eq(wanders.id, wanderId)).run();
   }
 
-  return Response.json({ wander: getWanderById(wanderId) });
+  return Response.json({ wander: parseImageUrls(getWanderById(wanderId)) });
 }
 
 export async function DELETE(
