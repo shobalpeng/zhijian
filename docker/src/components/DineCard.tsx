@@ -39,9 +39,11 @@ function ImageCarousel({ urls, onOpen }: { urls: string[]; onOpen: (i: number) =
       const touch = e.touches[0];
       if (!touch) return;
       const diff = touch.clientX - startX.current;
-      if (Math.abs(diff) > 10) hasDragged.current = true;
+      if (Math.abs(diff) > 10) {
+        hasDragged.current = true;
+        e.preventDefault();
+      }
       setOffsetX(diff);
-      e.preventDefault();
     };
     el.addEventListener("touchmove", handler, { passive: false });
     return () => el.removeEventListener("touchmove", handler);
